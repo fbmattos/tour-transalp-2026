@@ -10,7 +10,7 @@ import {
 import L from 'leaflet';
 import type { Stage } from '../data/stages';
 
-// TODO: Replace mock routeCoordinates with real GPX imports per stage
+// TODO: Replace estimated routeCoordinates with real GPX imports per stage
 
 // ── Fix Leaflet default icon issue with bundlers ──────────────
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
@@ -228,18 +228,19 @@ export const RouteMap: React.FC<Props> = ({
                       <span>
                         Length:{' '}
                         <strong style={{ color: '#111' }}>
-                          {/* TODO: replace with real climb data */}
-                          {climb.lengthKm ? `${climb.lengthKm} km` : 'TBD'}
+                          {climb.lengthKm ? `~${climb.lengthKm} km` : 'TBD'}
                         </strong>
                       </span>
                       <span>
                         Max:{' '}
                         <strong style={{ color: '#111' }}>
-                          {/* TODO: replace with real climb data */}
-                          {climb.maxGradient ? `${climb.maxGradient}%` : 'TBD'}
+                          {climb.maxGradient ? `~${climb.maxGradient}%` : 'TBD'}
                         </strong>
                       </span>
                     </div>
+                    <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
+                      Est. km {climb.approximateKm} · summit {climb.summitElevationM.toLocaleString()} m · GPX pending
+                    </p>
                   </div>
                 </Popup>
               </Marker>

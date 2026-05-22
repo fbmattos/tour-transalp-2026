@@ -7,6 +7,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  ReferenceDot,
+  ReferenceLine,
 } from 'recharts';
 import type { Stage } from '../data/stages';
 
@@ -14,23 +16,42 @@ interface Props {
   stage: Stage;
 }
 
-// TODO: Replace mock elevation data with real GPX-derived profiles
+// TODO: Replace estimated elevation data with real GPX-derived profiles
 
 interface ElevationTooltipPayload {
   value: number;
 }
 
-const CustomTooltip: React.FC<{ active?: boolean; payload?: ElevationTooltipPayload[]; label?: number }> = ({
+const shortClimbName = (name: string) => name.replace(/\s*\(.+\)/, '');
+
+const CustomTooltip: React.FC<{
+  active?: boolean;
+  payload?: ElevationTooltipPayload[];
+  label?: number;
+  stage: Stage;
+}> = ({
   active,
   payload,
   label,
+  stage,
 }) => {
   if (active && payload && payload.length) {
+    const nearbyClimb = stage.climbs.find((climb) => Math.abs(climb.approximateKm - Number(label)) <= 2);
+
     return (
       <div className="bg-slate-800/90 border border-white/20 rounded-lg px-3 py-2 text-xs shadow-xl">
         <p className="text-white/60 mb-0.5">{label} km</p>
         <p className="text-emerald-300 font-semibold">{payload[0].value.toLocaleString()} m</p>
         <p className="text-white/40">{Math.round(payload[0].value * 3.281).toLocaleString()} ft</p>
+        {nearbyClimb && (
+          <div className="mt-2 border-t border-white/10 pt-2">
+            <p className="font-semibold text-orange-300">{shortClimbName(nearbyClimb.name)}</p>
+            <p className="text-white/45">
+              Est. summit km {nearbyClimb.approximateKm} · {nearbyClimb.summitElevationM.toLocaleString()} m
+            </p>
+            <p className="text-white/35">Estimated placement pending official GPX.</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -55,8 +76,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
           <span>↑ {maxEl.toLocaleString()} m peak</span>
           <span>↓ {minEl.toLocaleString()} m low</span>
           <span className="text-white/30 italic">
-            {/* TODO: replace with real GPX note */}
-            Mock profile — awaiting GPX
+            Estimated profile — GPX pending
           </span>
         </div>
       </div>
@@ -72,7 +92,9 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
             <XAxis
+              type="number"
               dataKey="distance"
+              domain={[0, stage.distanceKm]}
               tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.35)' }}
               tickLine={false}
               axisLine={false}
@@ -87,7 +109,24 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               tickFormatter={(v) => `${v}`}
               width={50}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip stage={stage} />} />
+            {stage.climbs.map((climb) => (
+              <React.Fragment key={climb.name}>
+                <ReferenceLine
+                  x={climb.approximateKm}
+                  stroke="rgba(251,146,60,0.22)"
+                  strokeDasharray="2 4"
+                />
+                <ReferenceDot
+                  x={climb.approximateKm}
+                  y={climb.summitElevationM}
+                  r={4.5}
+                  fill="#fb923c"
+                  stroke="#fff"
+                  strokeWidth={1}
+                />
+              </React.Fragment>
+            ))}
             <Area
               type="monotone"
               dataKey="elevation"

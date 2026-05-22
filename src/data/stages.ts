@@ -1,15 +1,18 @@
 // ============================================================
 // Tour Transalp 2026 — Stage Data
 // ============================================================
-// TODO: Replace mock routeCoordinates arrays with real GPX imports
-// TODO: Fill in real climb lengthKm and maxGradient values
+// Official today: distance, elevation gain, start/finish towns.
+// Estimated until GPX release: route line, elevation profile shape, climb placement.
+// Pending: official GPX tracks, exact climb distances/gradients, measured profiles.
 // ============================================================
 
 export interface Climb {
   name: string;
   approximateLatLng: [number, number];
-  lengthKm: number | null;       // TODO: replace with real data
-  maxGradient: number | null;    // TODO: replace with real data
+  approximateKm: number;
+  summitElevationM: number;
+  lengthKm: number | null;       // Estimated until official GPX/climb data is available
+  maxGradient: number | null;    // Estimated until official GPX/climb data is available
   whyFamous: string;
 }
 
@@ -40,23 +43,51 @@ export interface Stage {
 }
 
 // ============================================================
-// Mock elevation profiles (rough shape only)
-// TODO: Replace with real GPX elevation data
+// Estimated route/profile helpers
+// TODO: Replace with official GPX-derived tracks and profiles when released
 // ============================================================
-function mockProfile(
+interface ProfileAnchor {
+  distance: number;
+  elevation: number;
+}
+
+function estimatedRoute(
+  start: [number, number],
+  waypoints: [number, number][],
+  finish: [number, number]
+): [number, number][] {
+  return [
+    start,
+    ...waypoints,
+    finish,
+  ];
+}
+
+function estimatedProfile(
   _totalKm: number,
-  points: { d: number; e: number }[]
+  anchors: ProfileAnchor[],
+  climbs: Climb[]
 ): { distance: number; elevation: number }[] {
+  const points = [
+    ...anchors,
+    ...climbs.map((climb) => ({
+      distance: climb.approximateKm,
+      elevation: climb.summitElevationM,
+    })),
+  ]
+    .sort((a, b) => a.distance - b.distance)
+    .filter((point, index, all) => index === 0 || point.distance !== all[index - 1].distance);
+
   const result: { distance: number; elevation: number }[] = [];
   for (let i = 0; i < points.length - 1; i++) {
     const from = points[i];
     const to = points[i + 1];
-    const steps = Math.round((to.d - from.d) * 3);
+    const steps = Math.max(1, Math.round((to.distance - from.distance) * 3));
     for (let s = 0; s <= steps; s++) {
       const t = s / steps;
       result.push({
-        distance: Math.round((from.d + (to.d - from.d) * t) * 10) / 10,
-        elevation: Math.round(from.e + (to.e - from.e) * t),
+        distance: Math.round((from.distance + (to.distance - from.distance) * t) * 10) / 10,
+        elevation: Math.round(from.elevation + (to.elevation - from.elevation) * t),
       });
     }
   }
@@ -84,38 +115,27 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 45 min – 6 h 30 min",
     mainRisk: `Underestimating the Staller Sattel climb after a long valley approach; arriving at the pass in bad weather (exposed at ~2,052 m).`,
     pacingAdvice: `Treat the first 60 km as active recovery. Resist the urge to push hard early. Save everything for the Staller Sattel — start it conservatively and settle into your climbing tempo. The descent is fast but rough.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [46.8289, 12.7689],
-      [46.8350, 12.7900],
-      [46.8500, 12.8500],
-      [46.8700, 12.9200],
-      [46.8900, 13.0000],
-      [46.9100, 13.0800],
-      [46.9150, 13.1400],
-      [46.9200, 13.2000],
-      [46.9100, 13.2600],
-      [46.8900, 13.3100],
-      [46.7530, 12.6480],
-    ],
+    routeCoordinates: estimatedRoute([46.8289, 12.7689], [[46.9197, 13.1983]], [46.7530, 12.6480]),
     startCoord: [46.8289, 12.7689],
     finishCoord: [46.7530, 12.6480],
     climbs: [
       {
         name: "Staller Sattel (Colle della Croce)",
         approximateLatLng: [46.9197, 13.1983],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 95,
+        summitElevationM: 2052,
+        lengthKm: 14,
+        maxGradient: 12,
         whyFamous: `A remote, exposed pass at ~2,052 m on the Austrian-Italian border. Rarely visited by cycling tourists, it's a rugged classic that tests both legs and navigation. Often cold and windy at the top.`,
       },
     ],
-    elevationProfile: mockProfile(114, [
-      { d: 0, e: 673 },
-      { d: 20, e: 700 },
-      { d: 50, e: 900 },
-      { d: 80, e: 1400 },
-      { d: 95, e: 2052 },
-      { d: 114, e: 1100 },
+    elevationProfile: estimatedProfile(114, [
+      { distance: 0, elevation: 673 },
+      { distance: 55, elevation: 900 },
+      { distance: 82, elevation: 1380 },
+      { distance: 114, elevation: 1100 },
+    ], [
+      { name: "Staller Sattel (Colle della Croce)", approximateLatLng: [46.9197, 13.1983], approximateKm: 95, summitElevationM: 2052, lengthKm: 14, maxGradient: 12, whyFamous: "" },
     ]),
   },
 
@@ -139,63 +159,65 @@ export const stages: Stage[] = [
     estimatedTime: "6 h 30 min – 9 h 00 min",
     mainRisk: `Going too hard on Cimabanche and Giau, arriving at Staulanza and Duran completely cooked. Bonking on the last two climbs is a near-certainty if you don't pace aggressively early.`,
     pacingAdvice: `This is an "eat before you're hungry, drink before you're thirsty" day. Cap effort on every climb except the last. Giau should feel uncomfortable but sustainable. If Giau feels easy, you will pay on Duran. Carry extra food.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [46.7530, 12.6480],
-      [46.7200, 12.5800],
-      [46.6800, 12.4500],
-      [46.6200, 12.3600],
-      [46.5900, 12.2900],
-      [46.5300, 12.2000],
-      [46.4800, 12.1500],
-      [46.4700, 12.1100],
-      [46.4200, 12.0500],
-      [46.3800, 11.9800],
-      [46.3300, 11.9200],
+    routeCoordinates: estimatedRoute([46.7530, 12.6480], [
+      [46.5960, 12.2780],
+      [46.4833, 12.0553],
+      [46.3850, 11.9780],
       [46.2900, 11.9600],
-      [46.2500, 11.8700],
-    ],
+    ], [46.2500, 11.8700]),
     startCoord: [46.7530, 12.6480],
     finishCoord: [46.2500, 11.8700],
     climbs: [
       {
         name: "Passo Cimabanche",
         approximateLatLng: [46.5960, 12.2780],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 38,
+        summitElevationM: 1530,
+        lengthKm: 18,
+        maxGradient: 8,
         whyFamous: `A long but steady Dolomite pass linking Cortina d'Ampezzo to the Pusteria valley. Often used as a "warm-up" pass in stage races, but at 1,530 m it sets a demanding early tone for the day.`,
       },
       {
         name: "Passo Giau",
         approximateLatLng: [46.4833, 12.0553],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 75,
+        summitElevationM: 2233,
+        lengthKm: 10,
+        maxGradient: 14,
         whyFamous: `One of the most feared climbs in the Dolomites at 2,233 m. Brutal average gradient, exposed lunar landscape near the top, and stunning views. Featured prominently in the Giro d'Italia multiple times. A genuine queen-stage maker.`,
       },
       {
         name: "Passo Staulanza",
         approximateLatLng: [46.3850, 11.9780],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 96,
+        summitElevationM: 1766,
+        lengthKm: 12,
+        maxGradient: 10,
         whyFamous: `A quieter but consistently steep Dolomite pass through the Val Fiorentina. Comes after Giau and acts as the "suffering lottery" — if your legs survived Giau, Staulanza reveals the truth.`,
       },
       {
         name: "Passo Duran",
         approximateLatLng: [46.2900, 11.9600],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 112,
+        summitElevationM: 1601,
+        lengthKm: 8,
+        maxGradient: 13,
         whyFamous: `The final pass of the queen stage at ~1,601 m. A narrow, remote forest road that separates the survivors from the casualties. Historically underestimated because it's "just" the fourth pass of the day.`,
       },
     ],
-    elevationProfile: mockProfile(134, [
-      { d: 0, e: 1100 },
-      { d: 20, e: 1000 },
-      { d: 38, e: 1530 },
-      { d: 55, e: 800 },
-      { d: 75, e: 2233 },
-      { d: 90, e: 1766 },
-      { d: 105, e: 1601 },
-      { d: 134, e: 1145 },
+    elevationProfile: estimatedProfile(134, [
+      { distance: 0, elevation: 1100 },
+      { distance: 22, elevation: 1000 },
+      { distance: 56, elevation: 800 },
+      { distance: 88, elevation: 1180 },
+      { distance: 104, elevation: 1050 },
+      { distance: 124, elevation: 820 },
+      { distance: 134, elevation: 1145 },
+    ], [
+      { name: "Passo Cimabanche", approximateLatLng: [46.5960, 12.2780], approximateKm: 38, summitElevationM: 1530, lengthKm: 18, maxGradient: 8, whyFamous: "" },
+      { name: "Passo Giau", approximateLatLng: [46.4833, 12.0553], approximateKm: 75, summitElevationM: 2233, lengthKm: 10, maxGradient: 14, whyFamous: "" },
+      { name: "Passo Staulanza", approximateLatLng: [46.3850, 11.9780], approximateKm: 96, summitElevationM: 1766, lengthKm: 12, maxGradient: 10, whyFamous: "" },
+      { name: "Passo Duran", approximateLatLng: [46.2900, 11.9600], approximateKm: 112, summitElevationM: 1601, lengthKm: 8, maxGradient: 13, whyFamous: "" },
     ]),
   },
 
@@ -219,40 +241,40 @@ export const stages: Stage[] = [
     estimatedTime: "2 h 30 min – 4 h 00 min",
     mainRisk: `Accumulated fatigue from Stage 2 (Queen Stage) hitting you hard on the very first climb. Riders who went too deep on Stage 2 will crack here.`,
     pacingAdvice: `After the queen stage, your legs will feel the opening climbs immediately. Go easy for the first 10 km. Passo Valles is steeper than it looks from the profile — if you're spinning easy and breathing hard, that's correct. Save something for Rolle, which finishes the stage.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [46.2500, 11.8700],
-      [46.2600, 11.8300],
-      [46.2850, 11.8000],
-      [46.3100, 11.7600],
-      [46.3300, 11.7800],
-      [46.2600, 11.7900],
-    ],
+    routeCoordinates: estimatedRoute([46.2500, 11.8700], [
+      [46.2850, 11.8050],
+      [46.3020, 11.7870],
+    ], [46.2600, 11.7900]),
     startCoord: [46.2500, 11.8700],
     finishCoord: [46.2600, 11.7900],
     climbs: [
       {
         name: "Passo Valles",
         approximateLatLng: [46.2850, 11.8050],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 20,
+        summitElevationM: 2033,
+        lengthKm: 13,
+        maxGradient: 11,
         whyFamous: `A beautiful and steep pass connecting the Val di Fassa valley to the San Pellegrino area. Quiet roads and big views make it a Dolomite favorite.`,
       },
       {
         name: "Passo Rolle",
         approximateLatLng: [46.3020, 11.7870],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 38,
+        summitElevationM: 1984,
+        lengthKm: 9,
+        maxGradient: 10,
         whyFamous: `The classic gateway to the Pale di San Martino massif. A Giro d'Italia regular, Rolle sits at 1,984 m with dramatic views of the pale, jagged Dolomite towers above the finish valley.`,
       },
     ],
-    elevationProfile: mockProfile(47, [
-      { d: 0, e: 1145 },
-      { d: 12, e: 1500 },
-      { d: 20, e: 2033 },
-      { d: 28, e: 1300 },
-      { d: 38, e: 1984 },
-      { d: 47, e: 1450 },
+    elevationProfile: estimatedProfile(47, [
+      { distance: 0, elevation: 1145 },
+      { distance: 10, elevation: 1500 },
+      { distance: 28, elevation: 1300 },
+      { distance: 47, elevation: 1450 },
+    ], [
+      { name: "Passo Valles", approximateLatLng: [46.2850, 11.8050], approximateKm: 20, summitElevationM: 2033, lengthKm: 13, maxGradient: 11, whyFamous: "" },
+      { name: "Passo Rolle", approximateLatLng: [46.3020, 11.7870], approximateKm: 38, summitElevationM: 1984, lengthKm: 9, maxGradient: 10, whyFamous: "" },
     ]),
   },
 
@@ -276,44 +298,41 @@ export const stages: Stage[] = [
     estimatedTime: "6 h 30 min – 8 h 30 min",
     mainRisk: `This is the longest stage by mileage. Underestimating the fatigue accumulation. Monte Grappa from Caupo is exposed and long — many riders blow up here from going too hard early in the stage.`,
     pacingAdvice: `Fuel aggressively from km 0. Save your best effort for the last 30 km including Monte Grappa. Everything before that is just transport. Do NOT chase groups on the descent from Croce d'Aune.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [46.2600, 11.7900],
-      [46.2100, 11.7500],
-      [46.1500, 11.7200],
-      [46.0800, 11.7600],
-      [46.0000, 11.8200],
-      [45.9200, 11.8900],
-      [45.8500, 11.8600],
-      [45.8600, 11.7800],
-      [45.8700, 11.7100],
-    ],
+    routeCoordinates: estimatedRoute([46.2600, 11.7900], [
+      [46.0800, 11.7620],
+      [45.8580, 11.7850],
+    ], [45.8700, 11.7100]),
     startCoord: [46.2600, 11.7900],
     finishCoord: [45.8700, 11.7100],
     climbs: [
       {
         name: "Passo Croce d'Aune",
         approximateLatLng: [46.0800, 11.7620],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 55,
+        summitElevationM: 1011,
+        lengthKm: 10,
+        maxGradient: 10,
         whyFamous: `A historically significant pass in the Veneto pre-Alps, linking the Feltrino valley to Pedavena. Popular in local sportives and used as a stepping stone to Monte Grappa.`,
       },
       {
         name: "Monte Grappa (Caupo side)",
         approximateLatLng: [45.8580, 11.7850],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 128,
+        summitElevationM: 1775,
+        lengthKm: 24,
+        maxGradient: 14,
         whyFamous: `Monte Grappa is one of the most historically charged climbs in cycling — a WWI battleground with a monumental ossuary at the summit. The Caupo side is rarely used in races, making it a true "insider" ascent. Long, unrelenting, and exposed near the top.`,
       },
     ],
-    elevationProfile: mockProfile(141, [
-      { d: 0, e: 1450 },
-      { d: 25, e: 900 },
-      { d: 55, e: 1011 },
-      { d: 75, e: 400 },
-      { d: 110, e: 600 },
-      { d: 128, e: 1775 },
-      { d: 141, e: 480 },
+    elevationProfile: estimatedProfile(141, [
+      { distance: 0, elevation: 1450 },
+      { distance: 30, elevation: 760 },
+      { distance: 78, elevation: 400 },
+      { distance: 110, elevation: 600 },
+      { distance: 141, elevation: 480 },
+    ], [
+      { name: "Passo Croce d'Aune", approximateLatLng: [46.0800, 11.7620], approximateKm: 55, summitElevationM: 1011, lengthKm: 10, maxGradient: 10, whyFamous: "" },
+      { name: "Monte Grappa (Caupo side)", approximateLatLng: [45.8580, 11.7850], approximateKm: 128, summitElevationM: 1775, lengthKm: 24, maxGradient: 14, whyFamous: "" },
     ]),
   },
 
@@ -337,34 +356,28 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 30 min – 6 h 30 min",
     mainRisk: `Accumulated fatigue from four previous days of racing. Grappa on fresh legs is hard. Grappa on day 5 is a completely different animal. Nutrition failure or dehydration are major threats.`,
     pacingAdvice: `Day 5 is about surviving, not racing. Allow your body to warm up slowly. Eat real food at every opportunity. If Grappa starts badly, back off and ride tempo — the finish line is the only goal today.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [45.8700, 11.7100],
-      [45.8600, 11.7300],
-      [45.8400, 11.7800],
-      [45.8300, 11.8100],
-      [45.8450, 11.7850],
-      [45.8700, 11.7600],
-      [45.8780, 11.7200],
-    ],
+    routeCoordinates: estimatedRoute([45.8700, 11.7100], [[45.8450, 11.7850]], [45.8780, 11.7200]),
     startCoord: [45.8700, 11.7100],
     finishCoord: [45.8780, 11.7200],
     climbs: [
       {
         name: "Monte Grappa (alternate flank)",
         approximateLatLng: [45.8450, 11.7850],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 65,
+        summitElevationM: 1775,
+        lengthKm: 22,
+        maxGradient: 13,
         whyFamous: `The second consecutive day on Monte Grappa, approached from a different side. The ossuary at the summit commemorates over 22,000 WWI fallen soldiers. A climb that is as emotionally powerful as it is physically demanding.`,
       },
     ],
-    elevationProfile: mockProfile(100, [
-      { d: 0, e: 480 },
-      { d: 20, e: 600 },
-      { d: 45, e: 900 },
-      { d: 65, e: 1775 },
-      { d: 80, e: 700 },
-      { d: 100, e: 300 },
+    elevationProfile: estimatedProfile(100, [
+      { distance: 0, elevation: 480 },
+      { distance: 25, elevation: 650 },
+      { distance: 45, elevation: 900 },
+      { distance: 82, elevation: 700 },
+      { distance: 100, elevation: 300 },
+    ], [
+      { name: "Monte Grappa (alternate flank)", approximateLatLng: [45.8450, 11.7850], approximateKm: 65, summitElevationM: 1775, lengthKm: 22, maxGradient: 13, whyFamous: "" },
     ]),
   },
 
@@ -388,43 +401,41 @@ export const stages: Stage[] = [
     estimatedTime: "5 h 30 min – 7 h 30 min",
     mainRisk: `Day 6 of 7. Deep fatigue means your pacing judgment is impaired. The plateau sections are deceptive — rolling roads at altitude feel easier than they are until you blow up on the final climb.`,
     pacingAdvice: `The Sette Comuni plateau is not recovery — it's a trap. Ride the rolling sections at a disciplined endurance pace. Save everything for the final 20 km to Lavarone. Eat a proper meal equivalent at the midpoint.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [45.8780, 11.7200],
-      [45.9200, 11.6900],
-      [45.9700, 11.5800],
-      [45.9800, 11.5000],
-      [45.9900, 11.4200],
-      [46.0000, 11.3500],
-      [45.9200, 11.2800],
-      [45.9000, 11.2600],
-    ],
+    routeCoordinates: estimatedRoute([45.8780, 11.7200], [
+      [45.9800, 11.5100],
+      [45.9100, 11.2700],
+    ], [45.9000, 11.2600]),
     startCoord: [45.8780, 11.7200],
     finishCoord: [45.9000, 11.2600],
     climbs: [
       {
         name: "Sette Comuni Plateau (Altopiano di Asiago)",
         approximateLatLng: [45.9800, 11.5100],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 58,
+        summitElevationM: 1050,
+        lengthKm: 28,
+        maxGradient: 9,
         whyFamous: `The "Seven Municipalities" plateau above Asiago is a stunning high-altitude farming landscape with tragic WWI history. Roads across it are wide, exposed to weather, and rolly — more tiring than they look on a profile.`,
       },
       {
         name: "Passo del Sommo / Lavarone",
         approximateLatLng: [45.9100, 11.2700],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 113,
+        summitElevationM: 1340,
+        lengthKm: 14,
+        maxGradient: 10,
         whyFamous: `The final climb to the Lavarone lake plateau. A forested, steady ramp that ends the stage on a high perch above the Lagarina valley. Used occasionally in local races and beloved by cyclists for its views of the Adamello group.`,
       },
     ],
-    elevationProfile: mockProfile(125, [
-      { d: 0, e: 300 },
-      { d: 25, e: 800 },
-      { d: 55, e: 1000 },
-      { d: 75, e: 1050 },
-      { d: 95, e: 950 },
-      { d: 110, e: 1200 },
-      { d: 125, e: 1150 },
+    elevationProfile: estimatedProfile(125, [
+      { distance: 0, elevation: 300 },
+      { distance: 25, elevation: 800 },
+      { distance: 78, elevation: 1040 },
+      { distance: 96, elevation: 950 },
+      { distance: 125, elevation: 1150 },
+    ], [
+      { name: "Sette Comuni Plateau (Altopiano di Asiago)", approximateLatLng: [45.9800, 11.5100], approximateKm: 58, summitElevationM: 1050, lengthKm: 28, maxGradient: 9, whyFamous: "" },
+      { name: "Passo del Sommo / Lavarone", approximateLatLng: [45.9100, 11.2700], approximateKm: 113, summitElevationM: 1340, lengthKm: 14, maxGradient: 10, whyFamous: "" },
     ]),
   },
 
@@ -448,43 +459,41 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 00 min – 5 h 30 min",
     mainRisk: `Crashing on the fast descents to Garda — tired legs, worn tires, and impatience to reach the finish. The descent to Riva is long and technical.`,
     pacingAdvice: `This is your victory lap — but you still have to finish it. Climb conservatively one last time on Bordala and Santa Barbara. On the long descent to the lake, BRAKE EARLY on every corner. Get to the lakefront in one piece. Then celebrate properly.`,
-    // TODO: Replace with real GPX track
-    routeCoordinates: [
-      [45.9000, 11.2600],
-      [45.9200, 11.1800],
+    routeCoordinates: estimatedRoute([45.9000, 11.2600], [
       [45.9100, 11.0900],
-      [45.9300, 11.0200],
       [45.9500, 10.9800],
-      [45.9200, 10.9200],
-      [45.8900, 10.8600],
-      [45.8800, 10.8400],
-    ],
+    ], [45.8800, 10.8400]),
     startCoord: [45.9000, 11.2600],
     finishCoord: [45.8800, 10.8400],
     climbs: [
       {
         name: "Passo Bordala",
         approximateLatLng: [45.9100, 11.0900],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 18,
+        summitElevationM: 1250,
+        lengthKm: 11,
+        maxGradient: 11,
         whyFamous: `A narrow forested pass in the Trentino hills above Riva del Garda. Little-known outside the region but a reliable climb in local sportives. The descent gives the first glimpse of Lake Garda far below.`,
       },
       {
         name: "Santa Barbara",
         approximateLatLng: [45.9500, 10.9800],
-        lengthKm: null, // TODO
-        maxGradient: null, // TODO
+        approximateKm: 43,
+        summitElevationM: 1170,
+        lengthKm: 7,
+        maxGradient: 13,
         whyFamous: `A short, steep ramp named after a local chapel perched above the lake. The final proper climb of the race. Tradition says whoever crests this climb crying is doing it right.`,
       },
     ],
-    elevationProfile: mockProfile(85, [
-      { d: 0, e: 1150 },
-      { d: 15, e: 1400 },
-      { d: 25, e: 900 },
-      { d: 40, e: 1200 },
-      { d: 55, e: 700 },
-      { d: 70, e: 300 },
-      { d: 85, e: 65 },
+    elevationProfile: estimatedProfile(85, [
+      { distance: 0, elevation: 1150 },
+      { distance: 28, elevation: 900 },
+      { distance: 56, elevation: 700 },
+      { distance: 72, elevation: 300 },
+      { distance: 85, elevation: 65 },
+    ], [
+      { name: "Passo Bordala", approximateLatLng: [45.9100, 11.0900], approximateKm: 18, summitElevationM: 1250, lengthKm: 11, maxGradient: 11, whyFamous: "" },
+      { name: "Santa Barbara", approximateLatLng: [45.9500, 10.9800], approximateKm: 43, summitElevationM: 1170, lengthKm: 7, maxGradient: 13, whyFamous: "" },
     ]),
   },
 ];

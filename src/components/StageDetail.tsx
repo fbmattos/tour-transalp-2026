@@ -28,6 +28,23 @@ const InfoCard: React.FC<{ label: string; value: string; sub?: string; icon?: st
   </div>
 );
 
+const DataConfidence: React.FC = () => (
+  <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
+    <div className="rounded-lg bg-emerald-500/10 px-2 py-2">
+      <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-300/80">Official</p>
+      <p className="mt-1 text-[11px] leading-snug text-white/55">Distance, gain, towns</p>
+    </div>
+    <div className="rounded-lg bg-orange-500/10 px-2 py-2">
+      <p className="text-[9px] font-bold uppercase tracking-widest text-orange-300/80">Estimated</p>
+      <p className="mt-1 text-[11px] leading-snug text-white/55">Route, profile, climbs</p>
+    </div>
+    <div className="rounded-lg bg-white/5 px-2 py-2">
+      <p className="text-[9px] font-bold uppercase tracking-widest text-white/40">Pending</p>
+      <p className="mt-1 text-[11px] leading-snug text-white/55">Official GPX</p>
+    </div>
+  </div>
+);
+
 export const StageDetail: React.FC<Props> = ({ stage }) => {
   return (
     <div className="flex flex-col gap-5">
@@ -59,6 +76,8 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
         <InfoCard label="Est. Time" value={stage.estimatedTime.split('–')[0].trim()} sub={`to ${stage.estimatedTime.split('–')[1]?.trim()}`} icon="⏱" />
       </div>
 
+      <DataConfidence />
+
       {/* Elevation profile */}
       <div className="bg-white/5 rounded-xl border border-white/10 p-4">
         <ElevationProfile stage={stage} />
@@ -83,10 +102,14 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <p className="text-sm font-semibold text-emerald-300">{climb.name}</p>
                   <div className="flex gap-3 text-[10px] text-white/40 flex-shrink-0">
-                    {/* TODO: replace with real climb data */}
-                    <span>{climb.lengthKm ? `${climb.lengthKm} km` : '— km'}</span>
-                    <span>{climb.maxGradient ? `${climb.maxGradient}% max` : '—% max'}</span>
+                    <span>km {climb.approximateKm}</span>
+                    <span>{climb.summitElevationM.toLocaleString()} m</span>
                   </div>
+                </div>
+                <div className="mb-2 flex gap-3 text-[10px] text-white/35">
+                  <span>{climb.lengthKm ? `~${climb.lengthKm} km climb` : 'length TBD'}</span>
+                  <span>{climb.maxGradient ? `~${climb.maxGradient}% max` : 'gradient TBD'}</span>
+                  <span>estimated</span>
                 </div>
                 <p className="text-xs text-white/55 leading-relaxed">{climb.whyFamous}</p>
               </div>
