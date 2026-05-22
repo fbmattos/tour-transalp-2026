@@ -4,6 +4,7 @@ import { SummaryHeader } from './components/SummaryHeader';
 import { StageCard } from './components/StageCard';
 import { StageDetail } from './components/StageDetail';
 import { RouteMap } from './components/RouteMap';
+import { ClimbDifficultySkyline } from './components/ClimbDifficultySkyline';
 
 // TODO: Add metric/imperial toggle
 // TODO: Add cumulative fatigue chart across all 7 stages
@@ -40,6 +41,14 @@ export default function App() {
               {stages.reduce((s, st) => s + st.distanceMi, 0)} mi total
             </span>
           </div>
+          <ClimbDifficultySkyline
+            stages={stages}
+            selectedId={selectedId}
+            onSelect={(id) => {
+              setSelectedId(id);
+              setShowAll(false);
+            }}
+          />
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 flex flex-col gap-2">
             {stages.map((stage) => (
               <StageCard
