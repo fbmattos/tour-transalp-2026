@@ -50,3 +50,50 @@ html, body, #root {
 
 /* ── Recharts tooltip text fix ────────────────────────────── */
 .recharts-cartesian-axis-tick text { fill: rgba(255,255,255,0.35); font-size: 10px; }
+
+/* ── Stage card elevation trace ───────────────────────────── */
+.stage-card-elevation-line {
+  fill: none;
+  stroke: rgba(52, 211, 153, 0.58);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: elevation-draw 1.8s ease-out forwards, elevation-breathe 4s ease-in-out infinite;
+}
+
+.stage-card-elevation-line-selected {
+  stroke: rgba(110, 231, 183, 0.9);
+  stroke-width: 2;
+}
+
+.stage-card-elevation-dot {
+  fill: rgba(110, 231, 183, 0.7);
+  opacity: 0.45;
+  filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.45));
+}
+
+.stage-card-elevation-dot-selected {
+  opacity: 0.9;
+}
+
+@keyframes elevation-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes elevation-breathe {
+  0%, 100% { opacity: 0.58; }
+  50% { opacity: 0.95; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-card-elevation-line {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .stage-card-elevation-dot {
+    display: none;
+  }
+}

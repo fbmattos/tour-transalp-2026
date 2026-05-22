@@ -16,7 +16,11 @@ interface Props {
 
 // TODO: Replace mock elevation data with real GPX-derived profiles
 
-const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: number }> = ({
+interface ElevationTooltipPayload {
+  value: number;
+}
+
+const CustomTooltip: React.FC<{ active?: boolean; payload?: ElevationTooltipPayload[]; label?: number }> = ({
   active,
   payload,
   label,
@@ -84,11 +88,6 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               width={50}
             />
             <Tooltip content={<CustomTooltip />} />
-            {/* Highlight major climbs */}
-            {stage.climbs.map((climb) => {
-              // Approximate distance position for climb summit reference line
-              return null; // TODO: compute distance from lat/lon once real GPX is available
-            })}
             <Area
               type="monotone"
               dataKey="elevation"

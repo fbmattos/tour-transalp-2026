@@ -19,7 +19,27 @@ const stageColors: Record<number, string> = {
   7: 'border-purple-500/40',
 };
 
+const buildElevationPath = (stage: Stage) => {
+  const width = 220;
+  const height = 34;
+  const points = stage.elevationProfile;
+  const minElevation = Math.min(...points.map((point) => point.elevation));
+  const maxElevation = Math.max(...points.map((point) => point.elevation));
+  const elevationRange = Math.max(1, maxElevation - minElevation);
+  const maxDistance = Math.max(...points.map((point) => point.distance));
+
+  return points
+    .map((point, index) => {
+      const x = maxDistance > 0 ? (point.distance / maxDistance) * width : 0;
+      const y = height - ((point.elevation - minElevation) / elevationRange) * height;
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(' ');
+};
+
 export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick }) => {
+  const elevationPath = buildElevationPath(stage);
+
   return (
     <button
       onClick={onClick}
@@ -73,6 +93,46 @@ export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick }) => {
 
         {/* Difficulty bar */}
         <DifficultyBar score={stage.difficultyScore} />
+
+        {/* Elevation trace */}
+        <div
+          className={`mt-3 h-9 overflow-hidden rounded-lg border transition-colors ${
+            isSelected
+              ? 'border-emerald-400/20 bg-emerald-400/5'
+              : 'border-white/5 bg-white/[0.03] group-hover:border-white/10'
+          }`}
+        >
+          <svg
+            viewBox="0 0 220 38"
+            preserveAspectRatio="none"
+            className="h-full w-full"
+            aria-hidden="true"
+          >
+            <path
+              d={`${elevationPath} L 220 38 L 0 38 Z`}
+              className="fill-emerald-400/10"
+            />
+            <path
+              d={elevationPath}
+              pathLength={1}
+              className={`stage-card-elevation-line ${
+                isSelected ? 'stage-card-elevation-line-selected' : ''
+              }`}
+            />
+            <circle
+              r="2.2"
+              className={`stage-card-elevation-dot ${
+                isSelected ? 'stage-card-elevation-dot-selected' : ''
+              }`}
+            >
+              <animateMotion
+                dur={isSelected ? '5s' : '7s'}
+                repeatCount="indefinite"
+                path={elevationPath}
+              />
+            </circle>
+          </svg>
+        </div>
       </div>
     </button>
   );

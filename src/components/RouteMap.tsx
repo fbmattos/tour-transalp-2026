@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -17,28 +17,14 @@ import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+interface IconDefaultWithGetIconUrl {
+  _getIconUrl?: unknown;
+}
+
+delete (L.Icon.Default.prototype as IconDefaultWithGetIconUrl)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
 
 // ── Custom icons ───────────────────────────────────────────────
-function makeDotIcon(color: string, label?: string) {
-  const html = `
-    <div style="
-      background:${color};
-      width:12px;height:12px;
-      border-radius:50%;
-      border:2px solid white;
-      box-shadow:0 2px 6px rgba(0,0,0,0.6);
-    "></div>`;
-  return L.divIcon({
-    html,
-    className: '',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
-    popupAnchor: [0, -10],
-  });
-}
-
 function makeClimbIcon() {
   const html = `
     <div style="
@@ -172,10 +158,8 @@ export const RouteMap: React.FC<Props> = ({
 
       <FitBounds stages={stages} selectedId={selectedId} showAll={showAll} />
 
-      {stages.map((stage) => {
+      {visibleStages.map((stage) => {
         const isSelected = stage.id === selectedId;
-        const isVisible = showAll || isSelected;
-        if (!isVisible) return null;
 
         const color = stageLineColors[stage.stageNumber];
         const weight = isSelected && !showAll ? 5 : 3.5;
