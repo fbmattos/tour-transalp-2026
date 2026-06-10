@@ -11,12 +11,13 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { Stage } from '../data/stages';
+import type { GpxStatus } from '../hooks/useGpxStages';
 
 interface Props {
-  stage: Stage;
+  stage: Stage & {
+    gpxStatus?: GpxStatus;
+  };
 }
-
-// TODO: Replace estimated elevation data with real GPX-derived profiles
 
 interface ElevationTooltipPayload {
   value: number;
@@ -49,7 +50,7 @@ const CustomTooltip: React.FC<{
             <p className="text-white/45">
               Est. summit km {nearbyClimb.approximateKm} · {nearbyClimb.summitElevationM.toLocaleString()} m
             </p>
-            <p className="text-white/35">Estimated placement pending official GPX.</p>
+            <p className="text-white/35">Climb marker is manually annotated on the GPX profile.</p>
           </div>
         )}
       </div>
@@ -76,7 +77,11 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
           <span>↑ {maxEl.toLocaleString()} m peak</span>
           <span>↓ {minEl.toLocaleString()} m low</span>
           <span className="text-white/30 italic">
-            Estimated profile — GPX pending
+            {stage.gpxStatus === 'loaded'
+              ? 'GPX-derived profile'
+              : stage.gpxStatus === 'error'
+              ? 'Fallback preview profile'
+              : 'Loading GPX profile'}
           </span>
         </div>
       </div>

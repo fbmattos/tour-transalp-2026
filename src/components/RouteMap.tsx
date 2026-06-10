@@ -10,8 +10,6 @@ import {
 import L from 'leaflet';
 import type { Stage } from '../data/stages';
 
-// TODO: Replace estimated routeCoordinates with real GPX imports per stage
-
 // ── Fix Leaflet default icon issue with bundlers ──────────────
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -239,7 +237,7 @@ export const RouteMap: React.FC<Props> = ({
                       </span>
                     </div>
                     <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
-                      Est. km {climb.approximateKm} · summit {climb.summitElevationM.toLocaleString()} m · GPX pending
+                      km {climb.approximateKm} marker · summit {climb.summitElevationM.toLocaleString()} m · curated climb note
                     </p>
                   </div>
                 </Popup>

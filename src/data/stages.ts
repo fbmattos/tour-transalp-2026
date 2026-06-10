@@ -1,9 +1,9 @@
 // ============================================================
 // Tour Transalp 2026 — Stage Data
 // ============================================================
-// Official today: distance, elevation gain, start/finish towns.
-// Estimated until GPX release: route line, elevation profile shape, climb placement.
-// Pending: official GPX tracks, exact climb distances/gradients, measured profiles.
+// Official race metadata: distance, elevation gain, start/finish towns.
+// GPX files provide the rendered route line and elevation profile at runtime.
+// Climb length/gradient values remain curated until official climb data is available.
 // ============================================================
 
 export interface Climb {
@@ -11,8 +11,8 @@ export interface Climb {
   approximateLatLng: [number, number];
   approximateKm: number;
   summitElevationM: number;
-  lengthKm: number | null;       // Estimated until official GPX/climb data is available
-  maxGradient: number | null;    // Estimated until official GPX/climb data is available
+  lengthKm: number | null;       // Curated until official climb-specific data is available
+  maxGradient: number | null;    // Curated until official climb-specific data is available
   whyFamous: string;
 }
 
@@ -33,18 +33,18 @@ export interface Stage {
   estimatedTime: string;
   mainRisk: string;
   pacingAdvice: string;
-  // TODO: Replace with real GPX-derived coordinates
+  gpxFile: string;
+  // Fallback preview coordinates used before GPX files finish loading
   routeCoordinates: [number, number][];
   startCoord: [number, number];
   finishCoord: [number, number];
   climbs: Climb[];
-  // TODO: Replace with real GPX elevation profile data
+  // Fallback preview profile used before GPX files finish loading
   elevationProfile: { distance: number; elevation: number }[];
 }
 
 // ============================================================
-// Estimated route/profile helpers
-// TODO: Replace with official GPX-derived tracks and profiles when released
+// Fallback route/profile helpers used before runtime GPX loading completes
 // ============================================================
 interface ProfileAnchor {
   distance: number;
@@ -115,6 +115,7 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 45 min – 6 h 30 min",
     mainRisk: `Underestimating the Staller Sattel climb after a long valley approach; arriving at the pass in bad weather (exposed at ~2,052 m).`,
     pacingAdvice: `Treat the first 60 km as active recovery. Resist the urge to push hard early. Save everything for the Staller Sattel — start it conservatively and settle into your climbing tempo. The descent is fast but rough.`,
+    gpxFile: "/gpx/TT-2026 01 Lienz-Sillian_TRACK.gpx",
     routeCoordinates: estimatedRoute([46.8289, 12.7689], [[46.9197, 13.1983]], [46.7530, 12.6480]),
     startCoord: [46.8289, 12.7689],
     finishCoord: [46.7530, 12.6480],
@@ -159,6 +160,7 @@ export const stages: Stage[] = [
     estimatedTime: "6 h 30 min – 9 h 00 min",
     mainRisk: `Going too hard on Cimabanche and Giau, arriving at Staulanza and Duran completely cooked. Bonking on the last two climbs is a near-certainty if you don't pace aggressively early.`,
     pacingAdvice: `This is an "eat before you're hungry, drink before you're thirsty" day. Cap effort on every climb except the last. Giau should feel uncomfortable but sustainable. If Giau feels easy, you will pay on Duran. Carry extra food.`,
+    gpxFile: "/gpx/TT-2026 02 Sillian-Falcade_TRACK.gpx",
     routeCoordinates: estimatedRoute([46.7530, 12.6480], [
       [46.5960, 12.2780],
       [46.4833, 12.0553],
@@ -241,6 +243,7 @@ export const stages: Stage[] = [
     estimatedTime: "2 h 30 min – 4 h 00 min",
     mainRisk: `Accumulated fatigue from Stage 2 (Queen Stage) hitting you hard on the very first climb. Riders who went too deep on Stage 2 will crack here.`,
     pacingAdvice: `After the queen stage, your legs will feel the opening climbs immediately. Go easy for the first 10 km. Passo Valles is steeper than it looks from the profile — if you're spinning easy and breathing hard, that's correct. Save something for Rolle, which finishes the stage.`,
+    gpxFile: "/gpx/TT-2026 03 Falcade-San_Martino_TRACK.gpx",
     routeCoordinates: estimatedRoute([46.2500, 11.8700], [
       [46.2850, 11.8050],
       [46.3020, 11.7870],
@@ -298,6 +301,7 @@ export const stages: Stage[] = [
     estimatedTime: "6 h 30 min – 8 h 30 min",
     mainRisk: `This is the longest stage by mileage. Underestimating the fatigue accumulation. Monte Grappa from Caupo is exposed and long — many riders blow up here from going too hard early in the stage.`,
     pacingAdvice: `Fuel aggressively from km 0. Save your best effort for the last 30 km including Monte Grappa. Everything before that is just transport. Do NOT chase groups on the descent from Croce d'Aune.`,
+    gpxFile: "/gpx/TT-2026 04 San Martino-Possagno_TRACK.gpx",
     routeCoordinates: estimatedRoute([46.2600, 11.7900], [
       [46.0800, 11.7620],
       [45.8580, 11.7850],
@@ -356,6 +360,7 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 30 min – 6 h 30 min",
     mainRisk: `Accumulated fatigue from four previous days of racing. Grappa on fresh legs is hard. Grappa on day 5 is a completely different animal. Nutrition failure or dehydration are major threats.`,
     pacingAdvice: `Day 5 is about surviving, not racing. Allow your body to warm up slowly. Eat real food at every opportunity. If Grappa starts badly, back off and ride tempo — the finish line is the only goal today.`,
+    gpxFile: "/gpx/TT-2026 05 Possagno-Semonzo_TRACK.gpx",
     routeCoordinates: estimatedRoute([45.8700, 11.7100], [[45.8450, 11.7850]], [45.8780, 11.7200]),
     startCoord: [45.8700, 11.7100],
     finishCoord: [45.8780, 11.7200],
@@ -401,6 +406,7 @@ export const stages: Stage[] = [
     estimatedTime: "5 h 30 min – 7 h 30 min",
     mainRisk: `Day 6 of 7. Deep fatigue means your pacing judgment is impaired. The plateau sections are deceptive — rolling roads at altitude feel easier than they are until you blow up on the final climb.`,
     pacingAdvice: `The Sette Comuni plateau is not recovery — it's a trap. Ride the rolling sections at a disciplined endurance pace. Save everything for the final 20 km to Lavarone. Eat a proper meal equivalent at the midpoint.`,
+    gpxFile: "/gpx/TT-2026 06 Semonzo-Lavarone_TRACK.gpx",
     routeCoordinates: estimatedRoute([45.8780, 11.7200], [
       [45.9800, 11.5100],
       [45.9100, 11.2700],
@@ -459,6 +465,7 @@ export const stages: Stage[] = [
     estimatedTime: "4 h 00 min – 5 h 30 min",
     mainRisk: `Crashing on the fast descents to Garda — tired legs, worn tires, and impatience to reach the finish. The descent to Riva is long and technical.`,
     pacingAdvice: `This is your victory lap — but you still have to finish it. Climb conservatively one last time on Bordala and Santa Barbara. On the long descent to the lake, BRAKE EARLY on every corner. Get to the lakefront in one piece. Then celebrate properly.`,
+    gpxFile: "/gpx/TT-2026 07 Lavarone-Riva_TRACK.gpx",
     routeCoordinates: estimatedRoute([45.9000, 11.2600], [
       [45.9100, 11.0900],
       [45.9500, 10.9800],

@@ -5,16 +5,17 @@ import { StageCard } from './components/StageCard';
 import { StageDetail } from './components/StageDetail';
 import { RouteMap } from './components/RouteMap';
 import { ClimbDifficultySkyline } from './components/ClimbDifficultySkyline';
+import { useGpxStages } from './hooks/useGpxStages';
 
 // TODO: Add metric/imperial toggle
 // TODO: Add cumulative fatigue chart across all 7 stages
-// TODO: Add GPX file import for real route coordinates and elevation profiles
 
 export default function App() {
   const [selectedId, setSelectedId] = useState<string>(stages[0].id);
   const [showAll, setShowAll] = useState(false);
+  const gpxStages = useGpxStages(stages);
 
-  const selectedStage = stages.find((s) => s.id === selectedId)!;
+  const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
 
   return (
     <div
@@ -27,7 +28,7 @@ export default function App() {
     >
       {/* ── Top header bar ───────────────────────────────────── */}
       <header className="flex-shrink-0 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm px-4 py-3">
-        <SummaryHeader />
+        <SummaryHeader stages={gpxStages} />
       </header>
 
       {/* ── Main layout ──────────────────────────────────────── */}
@@ -38,11 +39,11 @@ export default function App() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <h2 className="text-xs font-bold uppercase tracking-widest text-white/50">7 Stages</h2>
             <span className="text-xs text-white/30">
-              {stages.reduce((s, st) => s + st.distanceMi, 0)} mi total
+              {gpxStages.reduce((s, st) => s + st.distanceMi, 0)} mi total
             </span>
           </div>
           <ClimbDifficultySkyline
-            stages={stages}
+            stages={gpxStages}
             selectedId={selectedId}
             onSelect={(id) => {
               setSelectedId(id);
@@ -50,7 +51,7 @@ export default function App() {
             }}
           />
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 flex flex-col gap-2">
-            {stages.map((stage) => (
+            {gpxStages.map((stage) => (
               <StageCard
                 key={stage.id}
                 stage={stage}
@@ -72,6 +73,9 @@ export default function App() {
               {showAll
                 ? 'All 7 stages'
                 : `Stage ${selectedStage.stageNumber}: ${selectedStage.start.split(',')[0]} → ${selectedStage.finish.split(',')[0]}`}
+              {selectedStage.gpxStatus === 'loading' && ' · loading GPX'}
+              {selectedStage.gpxStatus === 'loaded' && ` · GPX ${selectedStage.gpxStats?.pointCount.toLocaleString()} pts`}
+              {selectedStage.gpxStatus === 'error' && ' · GPX load failed'}
             </span>
             <div className="flex-1" />
             <button
@@ -89,7 +93,7 @@ export default function App() {
           {/* Map */}
           <div className="flex-1 p-3 min-h-0">
             <RouteMap
-              stages={stages}
+              stages={gpxStages}
               selectedId={selectedId}
               showAll={showAll}
               onStageSelect={(id) => {
@@ -105,7 +109,7 @@ export default function App() {
           <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-white/10 bg-slate-900/90 backdrop-blur-sm z-10">
             <h2 className="text-xs font-bold uppercase tracking-widest text-white/50">Stage Detail</h2>
             <div className="flex gap-1">
-              {stages.map((s) => (
+              {gpxStages.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => {

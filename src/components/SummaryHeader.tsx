@@ -1,9 +1,18 @@
 import React from 'react';
-import { raceTotals } from '../data/stages';
+import type { Stage } from '../data/stages';
 
-export const SummaryHeader: React.FC = () => {
-  const { totalMi, totalKm, totalElevationFt, totalElevationM, queenStage, hardestStage, biggestFatigueRisk } =
-    raceTotals;
+interface Props {
+  stages: Stage[];
+}
+
+export const SummaryHeader: React.FC<Props> = ({ stages }) => {
+  const totalKm = stages.reduce((s, st) => s + st.distanceKm, 0);
+  const totalMi = stages.reduce((s, st) => s + st.distanceMi, 0);
+  const totalElevationM = stages.reduce((s, st) => s + st.elevationM, 0);
+  const totalElevationFt = stages.reduce((s, st) => s + st.elevationFt, 0);
+  const queenStage = stages.find((s) => s.badge === "Queen Stage")!;
+  const hardestStage = stages.reduce((a, b) => (b.difficultyScore > a.difficultyScore ? b : a));
+  const biggestFatigueRisk = stages[3];
 
   return (
     <div className="flex flex-wrap gap-3 items-center">
