@@ -29,7 +29,6 @@ export interface Stage {
   badge: string;
   badgeColor: "green" | "blue" | "orange" | "red" | "purple";
   summary: string;
-  floridaComparison: string;
   estimatedTime: string;
   mainRisk: string;
   pacingAdvice: string;
@@ -111,7 +110,6 @@ export const stages: Stage[] = [
     badge: "Opening Day",
     badgeColor: "blue",
     summary: `The race kicks off in the historic Tyrolean town of Lienz with a long valley roll before the day's defining effort: the Staller Sattel (Colle della Croce), a remote and exposed pass straddling Austria and Italy. The descent into Sillian is fast and technical.`,
-    floridaComparison: `Like a hard 70–85 mile Florida endurance ride ridden mostly upper Z2 / low Z3, except with a 1.5–2.5 hour continuous trainer climb in the middle of your ride.`,
     estimatedTime: "4 h 45 min – 6 h 30 min",
     mainRisk: `Underestimating the Staller Sattel climb after a long valley approach; arriving at the pass in bad weather (exposed at ~2,052 m).`,
     pacingAdvice: `Treat the first 60 km as active recovery. Resist the urge to push hard early. Save everything for the Staller Sattel — start it conservatively and settle into your climbing tempo. The descent is fast but rough.`,
@@ -156,7 +154,6 @@ export const stages: Stage[] = [
     badge: "Queen Stage",
     badgeColor: "red",
     summary: `The brutalist centerpiece of the race. From Sillian the route dips into the Dolomites and never relents — four major passes stacked across 84 miles. Passo Cimabanche, Passo Giau (the monster at 2,233 m), Passo Staulanza, and Passo Duran all feature. Giau alone can destroy poorly paced riders. This is the stage the race is decided on.`,
-    floridaComparison: `Not really comparable to Florida. The closest equivalent is doing 3 separate indoor climbing workouts back-to-back during a 7–9 hour ride, with long stretches at tempo/sweet spot and almost no real recovery between them.`,
     estimatedTime: "6 h 30 min – 9 h 00 min",
     mainRisk: `Going too hard on Cimabanche and Giau, arriving at Staulanza and Duran completely cooked. Bonking on the last two climbs is a near-certainty if you don't pace aggressively early.`,
     pacingAdvice: `This is an "eat before you're hungry, drink before you're thirsty" day. Cap effort on every climb except the last. Giau should feel uncomfortable but sustainable. If Giau feels easy, you will pay on Duran. Carry extra food.`,
@@ -239,7 +236,6 @@ export const stages: Stage[] = [
     badge: "Short but Savage",
     badgeColor: "orange",
     summary: `Don't let the 29 miles fool you. This compressed stage features Passo Valles and Passo Rolle back-to-back with almost zero flat recovery between them. The stage finishes in the stunning Pale di San Martino resort area. Short total time, but almost every meter is either climbing or a fast technical descent.`,
-    floridaComparison: `Like a brutal 2.5–4 hour climbing session on a trainer with almost no flat sections — sustained pressure on the pedals from the very first kilometer. Florida has nothing like this.`,
     estimatedTime: "2 h 30 min – 4 h 00 min",
     mainRisk: `Accumulated fatigue from Stage 2 (Queen Stage) hitting you hard on the very first climb. Riders who went too deep on Stage 2 will crack here.`,
     pacingAdvice: `After the queen stage, your legs will feel the opening climbs immediately. Go easy for the first 10 km. Passo Valles is steeper than it looks from the profile — if you're spinning easy and breathing hard, that's correct. Save something for Rolle, which finishes the stage.`,
@@ -297,7 +293,6 @@ export const stages: Stage[] = [
     badge: "Monte Grappa Day 1",
     badgeColor: "red",
     summary: `A monster long day that leaves the Dolomites and enters the Veneto pre-Alps. Passo Croce d'Aune starts the final push before Monte Grappa from the remote Caupo side — one of its lesser-known but consistently brutal ascents. The finish in Possagno (at the foot of Grappa) signals tomorrow's rematch.`,
-    floridaComparison: `Like doing a full-gas 90–100 mile Florida ride, then adding 10,000+ ft of climbing on top. By the final climb, endurance fatigue becomes the real enemy — legs feel fine but the engine is cooked.`,
     estimatedTime: "6 h 30 min – 8 h 30 min",
     mainRisk: `This is the longest stage by mileage. Underestimating the fatigue accumulation. Monte Grappa from Caupo is exposed and long — many riders blow up here from going too hard early in the stage.`,
     pacingAdvice: `Fuel aggressively from km 0. Save your best effort for the last 30 km including Monte Grappa. Everything before that is just transport. Do NOT chase groups on the descent from Croce d'Aune.`,
@@ -356,7 +351,6 @@ export const stages: Stage[] = [
     badge: "Grappa Revenge",
     badgeColor: "orange",
     summary: `Monte Grappa is climbed again — this time from a different flank. After 4 hard days in the legs, Grappa's remote and steep roads feel entirely different. The "revenge" nickname captures the feeling: yesterday Grappa humbled you, today you have to face it again on empty legs.`,
-    floridaComparison: `Like racing the Pitbull TT the morning after a century ride, while repeatedly climbing at low cadence for 1–2 hours at a time. Your cardiovascular system is willing but your legs have nothing left.`,
     estimatedTime: "4 h 30 min – 6 h 30 min",
     mainRisk: `Accumulated fatigue from four previous days of racing. Grappa on fresh legs is hard. Grappa on day 5 is a completely different animal. Nutrition failure or dehydration are major threats.`,
     pacingAdvice: `Day 5 is about surviving, not racing. Allow your body to warm up slowly. Eat real food at every opportunity. If Grappa starts badly, back off and ride tempo — the finish line is the only goal today.`,
@@ -402,7 +396,6 @@ export const stages: Stage[] = [
     badge: "Penultimate Grind",
     badgeColor: "orange",
     summary: `Leaving the Grappa massif, the race climbs into the Altopiano di Asiago — the Seven Municipalities plateau — a broad, wooded highland plateau famous for WWI history. The Sette Comuni roads are rolling and exposed. The final climb to Lavarone via Passo del Sommo ends the day on another hilltop fortress of a finish.`,
-    floridaComparison: `Like a very hard 6–7 hour Florida endurance day where your legs never fully recover between efforts and you keep getting forced into long, sustained tempo blocks. There's no flat spinning to shake the burn.`,
     estimatedTime: "5 h 30 min – 7 h 30 min",
     mainRisk: `Day 6 of 7. Deep fatigue means your pacing judgment is impaired. The plateau sections are deceptive — rolling roads at altitude feel easier than they are until you blow up on the final climb.`,
     pacingAdvice: `The Sette Comuni plateau is not recovery — it's a trap. Ride the rolling sections at a disciplined endurance pace. Save everything for the final 20 km to Lavarone. Eat a proper meal equivalent at the midpoint.`,
@@ -461,7 +454,6 @@ export const stages: Stage[] = [
     badge: "Final Day",
     badgeColor: "purple",
     summary: `The final stage drops toward Lake Garda — one of the most iconic cycling destinations in Europe. Passo Bordala and the Santa Barbara climb provide the day's hard moments before the route plummets down to the azure waters of Garda. The finish in Riva del Garda is an emotional and visual reward for seven days of Alpine suffering.`,
-    floridaComparison: `Like a hard 4–5 hour Florida ride after an entire training camp week. Physically hard, but the adrenaline of being on the final day, combined with the view of Lake Garda appearing below, provides energy that doesn't come from glycogen.`,
     estimatedTime: "4 h 00 min – 5 h 30 min",
     mainRisk: `Crashing on the fast descents to Garda — tired legs, worn tires, and impatience to reach the finish. The descent to Riva is long and technical.`,
     pacingAdvice: `This is your victory lap — but you still have to finish it. Climb conservatively one last time on Bordala and Santa Barbara. On the long descent to the lake, BRAKE EARLY on every corner. Get to the lakefront in one piece. Then celebrate properly.`,

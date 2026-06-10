@@ -22,7 +22,7 @@ export const SummaryHeader: React.FC<Props> = ({ stages }) => {
           Tour Transalp{' '}
           <span className="text-emerald-400">2026</span>
         </h1>
-        <p className="text-xs text-white/40 mt-0.5">Alps vs Florida Simulator · 7 stages</p>
+        <p className="text-xs text-white/40 mt-0.5">Route and climbing dashboard · 7 stages</p>
       </div>
 
       <div className="flex-1 min-w-0" />

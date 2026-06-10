@@ -173,15 +173,6 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
         </div>
       )}
 
-      {/* Florida comparison */}
-      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 rounded-xl border border-amber-500/20 p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-lg">🌴</span>
-          <SectionLabel>Florida Equivalent</SectionLabel>
-        </div>
-        <p className="text-sm text-amber-200/80 leading-relaxed">{stage.floridaComparison}</p>
-      </div>
-
       {/* Risk + Pacing */}
       <div className="grid grid-cols-1 gap-3">
         <div className="bg-red-500/10 rounded-xl border border-red-500/20 p-3">
