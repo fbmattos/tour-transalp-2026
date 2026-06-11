@@ -252,7 +252,7 @@ export const RouteMap: React.FC<Props> = ({
                       </span>
                     </div>
                     <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
-                      km {climb.approximateKm} marker · summit {climb.summitElevationM.toLocaleString()} m · curated climb note
+                      km {climb.approximateKm} marker · summit {climb.summitElevationM.toLocaleString()} m · GPX-aligned climb note
                     </p>
                   </div>
                 </Popup>

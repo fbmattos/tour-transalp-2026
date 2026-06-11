@@ -164,7 +164,7 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
                 <div className="mb-2 flex gap-3 text-[10px] text-white/35">
                   <span>{climb.lengthKm ? `~${climb.lengthKm} km climb` : 'length TBD'}</span>
                   <span>{climb.maxGradient ? `~${climb.maxGradient}% max` : 'gradient TBD'}</span>
-                  <span>{stage.gpxStatus === 'loaded' ? 'manual marker' : 'estimated marker'}</span>
+                  <span>{stage.gpxStatus === 'loaded' ? 'GPX-aligned marker' : 'estimated marker'}</span>
                 </div>
                 <p className="text-xs text-white/55 leading-relaxed">{climb.whyFamous}</p>
               </div>

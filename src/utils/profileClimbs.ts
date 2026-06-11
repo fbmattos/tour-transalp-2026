@@ -13,10 +13,12 @@ export interface ProfileClimb {
   gainM: number;
   avgGradient: number;
   summitElevationM: number;
-  durationMinutesAt1000Vam: number;
+  estimatedClimbMinutes: number;
   category: ClimbCategory;
   color: string;
 }
+
+export const CONSERVATIVE_TRANSALP_VAM_M_PER_HOUR = 850;
 
 export const climbCategoryMeta: Record<ClimbCategory, { label: string; range: string; color: string }> = {
   'Cat 3': { label: 'Cat 3', range: '<500m gain', color: '#5b9bd5' },
@@ -73,7 +75,7 @@ export const buildProfileClimbs = (
         gainM: Math.round(gainM),
         avgGradient,
         summitElevationM: summit.elevation,
-        durationMinutesAt1000Vam: Math.max(1, Math.round((gainM / 1000) * 60)),
+        estimatedClimbMinutes: Math.max(1, Math.round((gainM / CONSERVATIVE_TRANSALP_VAM_M_PER_HOUR) * 60)),
         category,
         color: climbCategoryMeta[category].color,
       };

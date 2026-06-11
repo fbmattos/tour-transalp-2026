@@ -12,7 +12,11 @@ import {
 } from 'recharts';
 import type { Stage } from '../data/stages';
 import type { GpxStatus } from '../hooks/useGpxStages';
-import { climbCategoryMeta, type ProfileClimb } from '../utils/profileClimbs';
+import {
+  CONSERVATIVE_TRANSALP_VAM_M_PER_HOUR,
+  climbCategoryMeta,
+  type ProfileClimb,
+} from '../utils/profileClimbs';
 
 interface Props {
   stage: Stage & {
@@ -58,7 +62,7 @@ const CustomTooltip: React.FC<{
           <div className="mt-2 border-t border-white/10 pt-2">
             <p className="font-semibold" style={{ color: nearbyClimb.color }}>{shortClimbName(nearbyClimb.name)}</p>
             <p className="text-white/45">
-              {nearbyClimb.durationMinutesAt1000Vam} min · {nearbyClimb.category} · {nearbyClimb.summitElevationM.toLocaleString()} m
+              ~{nearbyClimb.estimatedClimbMinutes} min conservative · {nearbyClimb.category} · {nearbyClimb.summitElevationM.toLocaleString()} m
             </p>
             <p className="text-white/35">
               {nearbyClimb.gainM.toLocaleString()} m up · {nearbyClimb.avgGradient}% · {nearbyClimb.lengthMi} mi
@@ -211,7 +215,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               <div className="min-w-0">
                 <p className="truncate text-xs font-semibold text-white">{shortClimbName(climb.name)}</p>
                 <p className="text-[10px] text-white/40">
-                  km {climb.startKm}-{climb.summitKm} · {climb.durationMinutesAt1000Vam} min at 1000 m/h VAM
+                  km {climb.startKm}-{climb.summitKm} · ~{climb.estimatedClimbMinutes} min at conservative pace
                 </p>
               </div>
               <div className="flex flex-shrink-0 items-center gap-2 text-[10px]">
@@ -227,6 +231,9 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               </div>
             </div>
           ))}
+          <p className="text-[10px] text-white/35">
+            Climb times use {CONSERVATIVE_TRANSALP_VAM_M_PER_HOUR} vertical m/h, based on conservative multi-day pacing.
+          </p>
         </div>
       )}
     </div>
