@@ -3,9 +3,11 @@ import type { Stage } from '../data/stages';
 
 interface Props {
   stages: Stage[];
+  isAboutOpen: boolean;
+  onAboutClick: () => void;
 }
 
-export const SummaryHeader: React.FC<Props> = ({ stages }) => {
+export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutClick }) => {
   const totalKm = stages.reduce((s, st) => s + st.distanceKm, 0);
   const totalMi = stages.reduce((s, st) => s + st.distanceMi, 0);
   const totalElevationM = stages.reduce((s, st) => s + st.elevationM, 0);
@@ -22,13 +24,24 @@ export const SummaryHeader: React.FC<Props> = ({ stages }) => {
           Tour Transalp{' '}
           <span className="text-emerald-400">2026</span>
         </h1>
-        <p className="text-xs text-white/40 mt-0.5">Route and climbing dashboard · 7 stages</p>
+        <p className="text-xs text-white/40 mt-0.5">
+          Fernando Mattos · Tour Transalp 2026: The epic road bike stage race across the Alps · June 21-27
+        </p>
+        {!isAboutOpen && (
+          <button
+            type="button"
+            onClick={onAboutClick}
+            className="mt-1 block text-xs font-semibold text-emerald-300/80 underline decoration-emerald-300/35 underline-offset-4 transition-colors hover:text-emerald-200"
+          >
+            About this dashboard and Tour Transalp
+          </button>
+        )}
       </div>
 
       <div className="hidden flex-1 min-w-0 sm:block" />
 
       {/* Stat pills */}
-      <div className="hidden flex-wrap gap-2 text-xs sm:flex">
+      <div className={`hidden flex-wrap gap-2 text-xs sm:flex ${isAboutOpen ? 'opacity-40' : ''}`}>
         <StatPill icon="↔" label="Total" value={`${totalMi} mi`} sub={`${totalKm} km`} />
         <StatPill icon="↑" label="Climbing" value={`${totalElevationFt.toLocaleString()} ft`} sub={`${totalElevationM.toLocaleString()} m`} />
         <StatPill

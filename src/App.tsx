@@ -10,11 +10,13 @@ import type { StageWithGpx } from './hooks/useGpxStages';
 import { DifficultyBadge } from './components/DifficultyBadge';
 import { DifficultyBar } from './components/DifficultyBar';
 import { ElevationProfile } from './components/ElevationProfile';
+import { AboutView } from './components/AboutView';
 
 // TODO: Add metric/imperial toggle
 // TODO: Add cumulative fatigue chart across all 7 stages
 
 type MobileView = 'overview' | 'map' | 'profile' | 'details';
+type AppView = 'dashboard' | 'about';
 
 const mobileViews: { id: MobileView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
@@ -94,6 +96,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string>(stages[0].id);
   const [showAll, setShowAll] = useState(false);
   const [activeMobileView, setActiveMobileView] = useState<MobileView>('overview');
+  const [activeView, setActiveView] = useState<AppView>('dashboard');
   const gpxStages = useGpxStages(stages);
 
   const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
@@ -118,10 +121,17 @@ export default function App() {
     >
       {/* ── Top header bar ───────────────────────────────────── */}
       <header className="sticky top-0 z-[1000] flex-shrink-0 border-b border-white/10 bg-slate-900/90 px-4 py-3 backdrop-blur-sm lg:static">
-        <SummaryHeader stages={gpxStages} />
+        <SummaryHeader
+          stages={gpxStages}
+          isAboutOpen={activeView === 'about'}
+          onAboutClick={() => setActiveView('about')}
+        />
       </header>
 
+      {activeView === 'about' && <AboutView onBack={() => setActiveView('dashboard')} />}
+
       {/* ── Desktop layout ───────────────────────────────────── */}
+      {activeView === 'dashboard' && (
       <div className="hidden flex-1 min-h-0 overflow-hidden lg:flex">
 
         {/* Left sidebar — stage cards */}
@@ -218,8 +228,10 @@ export default function App() {
           </div>
         </aside>
       </div>
+      )}
 
       {/* ── Mobile layout ────────────────────────────────────── */}
+      {activeView === 'dashboard' && (
       <div className="flex flex-col gap-4 px-3 py-4 lg:hidden">
         <div className="-mx-3 overflow-x-auto border-b border-white/10 px-3 pb-3">
           <div className="flex min-w-max gap-2">
@@ -302,6 +314,7 @@ export default function App() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
