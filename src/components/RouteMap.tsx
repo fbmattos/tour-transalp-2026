@@ -102,7 +102,8 @@ const FitBounds: React.FC<{
   stages: Stage[];
   selectedId: string | null;
   showAll: boolean;
-}> = ({ stages, selectedId, showAll }) => {
+  invalidateKey?: string;
+}> = ({ stages, selectedId, showAll, invalidateKey }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -110,11 +111,23 @@ const FitBounds: React.FC<{
       ? stages.flatMap((s) => s.routeCoordinates as [number, number][])
       : stages.find((s) => s.id === selectedId)?.routeCoordinates ?? [];
 
-    if (target.length > 0) {
-      const bounds = L.latLngBounds(target);
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
-    }
-  }, [selectedId, showAll, stages, map]);
+    const fitMap = () => {
+      map.invalidateSize();
+
+      if (target.length > 0) {
+        const bounds = L.latLngBounds(target);
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+      }
+    };
+
+    const animationFrame = window.requestAnimationFrame(fitMap);
+    const resizeTimer = window.setTimeout(fitMap, 150);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(resizeTimer);
+    };
+  }, [selectedId, showAll, stages, map, invalidateKey]);
 
   return null;
 };
@@ -124,6 +137,7 @@ interface Props {
   stages: Stage[];
   selectedId: string | null;
   showAll: boolean;
+  invalidateKey?: string;
   onStageSelect: (id: string) => void;
 }
 
@@ -131,6 +145,7 @@ export const RouteMap: React.FC<Props> = ({
   stages,
   selectedId,
   showAll,
+  invalidateKey,
   onStageSelect,
 }) => {
   const visibleStages = showAll
@@ -154,7 +169,7 @@ export const RouteMap: React.FC<Props> = ({
         opacity={0.75}
       />
 
-      <FitBounds stages={stages} selectedId={selectedId} showAll={showAll} />
+      <FitBounds stages={stages} selectedId={selectedId} showAll={showAll} invalidateKey={invalidateKey} />
 
       {visibleStages.map((stage) => {
         const isSelected = stage.id === selectedId;

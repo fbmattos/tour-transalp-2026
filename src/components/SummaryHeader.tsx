@@ -25,10 +25,10 @@ export const SummaryHeader: React.FC<Props> = ({ stages }) => {
         <p className="text-xs text-white/40 mt-0.5">Route and climbing dashboard · 7 stages</p>
       </div>
 
-      <div className="flex-1 min-w-0" />
+      <div className="hidden flex-1 min-w-0 sm:block" />
 
       {/* Stat pills */}
-      <div className="flex flex-wrap gap-2 text-xs">
+      <div className="hidden flex-wrap gap-2 text-xs sm:flex">
         <StatPill icon="↔" label="Total" value={`${totalMi} mi`} sub={`${totalKm} km`} />
         <StatPill icon="↑" label="Climbing" value={`${totalElevationFt.toLocaleString()} ft`} sub={`${totalElevationM.toLocaleString()} m`} />
         <StatPill
