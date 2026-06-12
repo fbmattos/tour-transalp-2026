@@ -1,13 +1,16 @@
 import React from 'react';
 import type { Stage } from '../data/stages';
+import { useUnits } from '../context/UnitsContext';
 
 interface Props {
   stages: Stage[];
   isAboutOpen: boolean;
   onAboutClick: () => void;
+  unitToggle?: React.ReactNode;
 }
 
-export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutClick }) => {
+export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutClick, unitToggle }) => {
+  const { formatDistance, formatElevation } = useUnits();
   const totalKm = stages.reduce((s, st) => s + st.distanceKm, 0);
   const totalMi = stages.reduce((s, st) => s + st.distanceMi, 0);
   const totalElevationM = stages.reduce((s, st) => s + st.elevationM, 0);
@@ -40,15 +43,17 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
 
       <div className="hidden flex-1 min-w-0 sm:block" />
 
+      {unitToggle && <div className="flex-shrink-0">{unitToggle}</div>}
+
       {/* Stat pills */}
       <div className={`hidden flex-wrap gap-2 text-xs sm:flex ${isAboutOpen ? 'opacity-40' : ''}`}>
-        <StatPill icon="↔" label="Total" value={`${totalMi} mi`} sub={`${totalKm} km`} />
-        <StatPill icon="↑" label="Climbing" value={`${totalElevationFt.toLocaleString()} ft`} sub={`${totalElevationM.toLocaleString()} m`} />
+        <StatPill icon="↔" label="Total" value={formatDistance(totalKm, totalMi)} />
+        <StatPill icon="↑" label="Climbing" value={formatElevation(totalElevationM, totalElevationFt)} />
         <StatPill
           icon="👑"
           label="Queen"
           value={`Stage ${queenStage.stageNumber}`}
-          sub={`${queenStage.distanceMi} mi / ${queenStage.elevationFt.toLocaleString()} ft`}
+          sub={`${formatDistance(queenStage.distanceKm, queenStage.distanceMi)} / ${formatElevation(queenStage.elevationM, queenStage.elevationFt)}`}
           highlight="red"
         />
         <StatPill

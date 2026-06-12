@@ -9,6 +9,7 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import type { Stage } from '../data/stages';
+import { useUnits } from '../context/UnitsContext';
 
 // ── Fix Leaflet default icon issue with bundlers ──────────────
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
@@ -148,6 +149,7 @@ export const RouteMap: React.FC<Props> = ({
   invalidateKey,
   onStageSelect,
 }) => {
+  const { formatDistance, formatElevation, formatDistanceMark } = useUnits();
   const visibleStages = showAll
     ? stages
     : stages.filter((s) => s.id === selectedId);
@@ -241,7 +243,7 @@ export const RouteMap: React.FC<Props> = ({
                       <span>
                         Length:{' '}
                         <strong style={{ color: '#111' }}>
-                          {climb.lengthKm ? `~${climb.lengthKm} km` : 'TBD'}
+                          {climb.lengthKm ? `~${formatDistance(climb.lengthKm, undefined, 1)}` : 'TBD'}
                         </strong>
                       </span>
                       <span>
@@ -252,7 +254,7 @@ export const RouteMap: React.FC<Props> = ({
                       </span>
                     </div>
                     <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
-                      km {climb.approximateKm} marker · summit {climb.summitElevationM.toLocaleString()} m · GPX-aligned climb note
+                      {formatDistanceMark(climb.approximateKm)} marker · summit {formatElevation(climb.summitElevationM)} · GPX-aligned climb note
                     </p>
                   </div>
                 </Popup>

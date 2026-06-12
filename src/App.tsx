@@ -11,9 +11,14 @@ import { DifficultyBadge } from './components/DifficultyBadge';
 import { DifficultyBar } from './components/DifficultyBar';
 import { ElevationProfile } from './components/ElevationProfile';
 import { AboutView } from './components/AboutView';
+import { UnitToggle, type UnitToggleVariant } from './components/UnitToggle';
+import { useUnits } from './context/UnitsContext';
 
-// TODO: Add metric/imperial toggle
 // TODO: Add cumulative fatigue chart across all 7 stages
+
+// Three looks to compare — change this to 'segmented' | 'switch' | 'text'
+// and the header toggle swaps live. See UnitToggle.tsx for the variants.
+const UNIT_TOGGLE_VARIANT: UnitToggleVariant = 'segmented';
 
 type MobileView = 'overview' | 'map' | 'profile' | 'details';
 type AppView = 'dashboard' | 'about';
@@ -33,7 +38,9 @@ const MobileStat: React.FC<{ label: string; value: string; sub?: string }> = ({ 
   </div>
 );
 
-const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
+const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => {
+  const { formatDistance, formatElevation, distanceUnit, distanceValue } = useUnits();
+  return (
   <div className="flex flex-col gap-4">
     <div>
       <div className="mb-2 flex items-center gap-2">
@@ -56,8 +63,8 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
     </div>
 
     <div className="grid grid-cols-3 gap-2">
-      <MobileStat label="Distance" value={`${stage.distanceMi} mi`} sub={`${stage.distanceKm} km`} />
-      <MobileStat label="Climbing" value={`${stage.elevationFt.toLocaleString()} ft`} sub={`${stage.elevationM.toLocaleString()} m`} />
+      <MobileStat label="Distance" value={formatDistance(stage.distanceKm, stage.distanceMi)} />
+      <MobileStat label="Climbing" value={formatElevation(stage.elevationM, stage.elevationFt)} />
       <MobileStat label="Time" value={stage.estimatedTime.split('–')[0].trim()} sub={`to ${stage.estimatedTime.split('–')[1]?.trim()}`} />
     </div>
 
@@ -65,11 +72,12 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
       <div className="rounded-xl border border-orange-500/25 bg-orange-500/10 p-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-orange-300/80">Steepest Sustained Grade</p>
         <p className="mt-1 text-2xl font-black leading-none text-white">
-          {stage.gpxStats.steepestGrade.gradientPct}% for {stage.gpxStats.steepestGrade.distanceMi.toLocaleString()} mi
+          {stage.gpxStats.steepestGrade.gradientPct}% for{' '}
+          {formatDistance(stage.gpxStats.steepestGrade.distanceKm, stage.gpxStats.steepestGrade.distanceMi)}
         </p>
         <p className="mt-2 text-xs text-white/45">
-          km {stage.gpxStats.steepestGrade.startDistanceKm.toLocaleString()} to{' '}
-          {stage.gpxStats.steepestGrade.endDistanceKm.toLocaleString()}
+          {distanceUnit} {distanceValue(stage.gpxStats.steepestGrade.startDistanceKm, 1).toLocaleString()} to{' '}
+          {distanceValue(stage.gpxStats.steepestGrade.endDistanceKm, 1).toLocaleString()}
         </p>
       </div>
     )}
@@ -90,7 +98,8 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default function App() {
   const [selectedId, setSelectedId] = useState<string>(stages[0].id);
@@ -98,6 +107,7 @@ export default function App() {
   const [activeMobileView, setActiveMobileView] = useState<MobileView>('overview');
   const [activeView, setActiveView] = useState<AppView>('dashboard');
   const gpxStages = useGpxStages(stages);
+  const { formatDistance } = useUnits();
 
   const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
   const routeStatus = (
@@ -125,6 +135,7 @@ export default function App() {
           stages={gpxStages}
           isAboutOpen={activeView === 'about'}
           onAboutClick={() => setActiveView('about')}
+          unitToggle={<UnitToggle variant={UNIT_TOGGLE_VARIANT} />}
         />
       </header>
 
@@ -139,7 +150,11 @@ export default function App() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <h2 className="text-xs font-bold uppercase tracking-widest text-white/50">7 Stages</h2>
             <span className="text-xs text-white/30">
-              {gpxStages.reduce((s, st) => s + st.distanceMi, 0)} mi total
+              {formatDistance(
+                gpxStages.reduce((s, st) => s + st.distanceKm, 0),
+                gpxStages.reduce((s, st) => s + st.distanceMi, 0)
+              )}{' '}
+              total
             </span>
           </div>
           <ClimbDifficultySkyline
