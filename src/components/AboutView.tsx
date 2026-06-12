@@ -1,4 +1,5 @@
 import React from 'react';
+import { useUnits } from '../context/UnitsContext';
 
 const fernandoLinks = [
   { label: 'Instagram', href: 'https://www.instagram.com/fbmattos77/' },
@@ -49,7 +50,9 @@ const Fact: React.FC<{ label: string; value: string; sub?: string }> = ({ label,
   </div>
 );
 
-export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => (
+export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { formatDistance, formatElevation } = useUnits();
+  return (
   <main className="flex-1 overflow-y-auto px-4 py-5 lg:px-8 lg:py-8">
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
       <button
@@ -87,8 +90,8 @@ export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => (
           <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
             <Fact label="Race" value="7 stages" />
             <Fact label="Edition" value="22nd" />
-            <Fact label="Distance" value="465 mi" sub="746 km" />
-            <Fact label="Climbing" value="56,365 ft" sub="17,180 m" />
+            <Fact label="Distance" value={formatDistance(746, 465)} />
+            <Fact label="Climbing" value={formatElevation(17180, 56365)} />
           </div>
           <div className="mt-5">
             <LinkGroup title="Event Resources" links={eventLinks} />
@@ -111,4 +114,5 @@ export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => (
       </div>
     </div>
   </main>
-);
+  );
+};

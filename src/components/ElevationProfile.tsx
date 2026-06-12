@@ -17,6 +17,7 @@ import {
   climbCategoryMeta,
   type ProfileClimb,
 } from '../utils/profileClimbs';
+import { useUnits } from '../context/UnitsContext';
 
 interface Props {
   stage: Stage & {
@@ -46,6 +47,7 @@ const CustomTooltip: React.FC<{
   label,
   stage,
 }) => {
+  const { formatDistance, formatElevation, distanceUnit, distanceValue } = useUnits();
   if (active && payload && payload.length) {
     const nearbyClimb = stage.profileClimbs?.find(
       (climb) =>
@@ -55,17 +57,16 @@ const CustomTooltip: React.FC<{
 
     return (
       <div className="bg-slate-800/90 border border-white/20 rounded-lg px-3 py-2 text-xs shadow-xl">
-        <p className="text-white/60 mb-0.5">{label} km</p>
-        <p className="text-emerald-300 font-semibold">{payload[0].value.toLocaleString()} m</p>
-        <p className="text-white/40">{Math.round(payload[0].value * 3.281).toLocaleString()} ft</p>
+        <p className="text-white/60 mb-0.5">{distanceValue(Number(label), 1).toLocaleString()} {distanceUnit}</p>
+        <p className="text-emerald-300 font-semibold">{formatElevation(payload[0].value)}</p>
         {nearbyClimb && (
           <div className="mt-2 border-t border-white/10 pt-2">
             <p className="font-semibold" style={{ color: nearbyClimb.color }}>{shortClimbName(nearbyClimb.name)}</p>
             <p className="text-white/45">
-              ~{nearbyClimb.estimatedClimbMinutes} min conservative · {nearbyClimb.category} · {nearbyClimb.summitElevationM.toLocaleString()} m
+              ~{nearbyClimb.estimatedClimbMinutes} min conservative · {nearbyClimb.category} · {formatElevation(nearbyClimb.summitElevationM)}
             </p>
             <p className="text-white/35">
-              {nearbyClimb.gainM.toLocaleString()} m up · {nearbyClimb.avgGradient}% · {nearbyClimb.lengthMi} mi
+              {formatElevation(nearbyClimb.gainM)} up · {nearbyClimb.avgGradient}% · {formatDistance(nearbyClimb.lengthKm, nearbyClimb.lengthMi, 1)}
             </p>
           </div>
         )}
@@ -76,6 +77,7 @@ const CustomTooltip: React.FC<{
 };
 
 export const ElevationProfile: React.FC<Props> = ({ stage }) => {
+  const { formatDistance, formatElevation, isImperial, distanceUnit, distanceValue } = useUnits();
   const data = stage.elevationProfile;
   const profileClimbs = stage.profileClimbs ?? [];
   const chartData = data.map((point) => {
@@ -105,8 +107,8 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
           Elevation Profile
         </h3>
         <div className="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs text-white/50">
-          <span>↑ {maxEl.toLocaleString()} m peak</span>
-          <span>↓ {minEl.toLocaleString()} m low</span>
+          <span>↑ {formatElevation(maxEl)} peak</span>
+          <span>↓ {formatElevation(minEl)} low</span>
           <span className="text-white/30 italic">
             {stage.gpxStatus === 'loaded'
               ? 'GPX-derived profile'
@@ -147,7 +149,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.35)' }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `${v}`}
+              tickFormatter={(v) => `${distanceValue(v)}`}
               interval="preserveStartEnd"
             />
             <YAxis
@@ -155,7 +157,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.35)' }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `${v}`}
+              tickFormatter={(v) => `${isImperial ? Math.round(v * 3.28084) : v}`}
               width={50}
             />
             <Tooltip content={<CustomTooltip stage={stage} />} />
@@ -215,7 +217,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
               <div className="min-w-0">
                 <p className="truncate text-xs font-semibold text-white">{shortClimbName(climb.name)}</p>
                 <p className="text-[10px] text-white/40">
-                  km {climb.startKm}-{climb.summitKm} · ~{climb.estimatedClimbMinutes} min at conservative pace
+                  {distanceUnit} {distanceValue(climb.startKm, 1)}-{distanceValue(climb.summitKm, 1)} · ~{climb.estimatedClimbMinutes} min at conservative pace
                 </p>
               </div>
               <div className="flex flex-shrink-0 items-center gap-2 text-[10px]">
@@ -226,7 +228,7 @@ export const ElevationProfile: React.FC<Props> = ({ stage }) => {
                   {climb.category}
                 </span>
                 <span className="text-white/55">
-                  {climb.gainM.toLocaleString()} m up · {climb.avgGradient}% · {climb.lengthMi} mi
+                  {formatElevation(climb.gainM)} up · {climb.avgGradient}% · {formatDistance(climb.lengthKm, climb.lengthMi, 1)}
                 </span>
               </div>
             </div>
