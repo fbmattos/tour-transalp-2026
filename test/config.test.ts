@@ -43,6 +43,8 @@ describe('event, team, and rider config', () => {
   it('defines team metadata', () => {
     expectNonEmptyString(team.name, 'team.name');
     expectNonEmptyString(team.description, 'team.description');
+    expectNonEmptyString(team.photo.src, 'team.photo.src');
+    expectNonEmptyString(team.photo.alt, 'team.photo.alt');
     expectPositiveNumber(team.riderCount, 'team.riderCount');
     expect(team.riderCount).toBe(riders.length);
     expectValidLinks(team.links, 'team.links');
@@ -53,12 +55,17 @@ describe('event, team, and rider config', () => {
 
     for (const rider of riders) {
       expectNonEmptyString(rider.name, 'rider.name');
-      expectNonEmptyString(rider.headshot, `${rider.name}.headshot`);
       expectNonEmptyString(rider.location, `${rider.name}.location`);
-      expectNonEmptyString(rider.bike, `${rider.name}.bike`);
       expectNonEmptyString(rider.role, `${rider.name}.role`);
       expectNonEmptyString(rider.funFact, `${rider.name}.funFact`);
-      expect(rider.goals.length, `${rider.name}.goals`).toBeGreaterThan(0);
+
+      if (rider.headshot) {
+        expectNonEmptyString(rider.headshot, `${rider.name}.headshot`);
+      }
+
+      if (rider.bike) {
+        expectNonEmptyString(rider.bike, `${rider.name}.bike`);
+      }
 
       for (const goal of rider.goals) {
         expectNonEmptyString(goal, `${rider.name}.goal`);

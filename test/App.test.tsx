@@ -43,4 +43,18 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'km' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getAllByText(/114 km/i).length).toBeGreaterThan(0);
   });
+
+  it('renders team and rider data on the About view', async () => {
+    const user = userEvent.setup();
+    renderApp();
+
+    await user.click(screen.getByRole('button', { name: 'About this dashboard and Tour Transalp' }));
+
+    expect(screen.getByRole('heading', { name: 'Woodenlegs' })).toBeInTheDocument();
+    expect(screen.getByAltText('Woodenlegs team riders')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sergio Clemente' })).toBeInTheDocument();
+    expect(screen.getByText(/instigator-in-chief/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Marcelo/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Eduardo Laureano' })).toBeInTheDocument();
+  });
 });

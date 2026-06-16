@@ -15,6 +15,6 @@ test('opens the About view from the homepage', async ({ page }) => {
 
   await page.getByRole('button', { name: 'About this dashboard and Tour Transalp' }).click();
 
-  await expect(page.getByRole('heading', { name: /Fernando Mattos at Tour Transalp 2026/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Woodenlegs' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Back to dashboard' })).toBeVisible();
 });

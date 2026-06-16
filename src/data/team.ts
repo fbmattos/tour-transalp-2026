@@ -4,14 +4,22 @@ export interface TeamMetadata {
   name: string;
   riderCount: number;
   description: string;
+  photo: {
+    src: string;
+    alt: string;
+  };
   links: ExternalLink[];
 }
 
 export const team: TeamMetadata = {
-  name: 'Fernando Mattos',
-  riderCount: 1,
+  name: 'Woodenlegs',
+  riderCount: 4,
   description:
-    'A personal route, climbing, GPX profile, and pacing dashboard for preparing for and following the seven-day race across the Alps.',
+    "Founded in Seattle and united by a questionable love of climbing, Woodenlegs is a group of friends who make an annual pilgrimage to Europe in search of epic rides. After a memorable week in the Dolomites, one thing became clear: apparently we hadn't suffered enough. Tour Transalp seemed like the logical next step.",
+  photo: {
+    src: '/images/team/team-photo.jpg',
+    alt: 'Woodenlegs team riders',
+  },
   links: [
     { label: 'GitHub repo', href: 'https://github.com/fbmattos/tour-transalp-2026' },
   ],
