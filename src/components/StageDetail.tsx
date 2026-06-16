@@ -3,9 +3,11 @@ import { DifficultyBadge } from './DifficultyBadge';
 import { DifficultyBar } from './DifficultyBar';
 import { ElevationProfile } from './ElevationProfile';
 import type { GpxStatus, StageWithGpx } from '../hooks/useGpxStages';
+import type { UnitSystem } from '../types/units';
 
 interface Props {
   stage: StageWithGpx;
+  unitSystem: UnitSystem;
 }
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -47,7 +49,9 @@ const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
   </div>
 );
 
-export const StageDetail: React.FC<Props> = ({ stage }) => {
+export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
+  const isMetric = unitSystem === 'metric';
+
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
@@ -73,8 +77,18 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
 
       {/* Key stats */}
       <div className="grid grid-cols-3 gap-2">
-        <InfoCard label="Distance" value={`${stage.distanceMi} mi`} sub={`${stage.distanceKm} km`} icon="↔" />
-        <InfoCard label="Climbing" value={`${stage.elevationFt.toLocaleString()} ft`} sub={`${stage.elevationM.toLocaleString()} m`} icon="↑" />
+        <InfoCard
+          label="Distance"
+          value={isMetric ? `${stage.distanceKm} km` : `${stage.distanceMi} mi`}
+          sub={isMetric ? `${stage.distanceMi} mi` : `${stage.distanceKm} km`}
+          icon="↔"
+        />
+        <InfoCard
+          label="Climbing"
+          value={isMetric ? `${stage.elevationM.toLocaleString()} m` : `${stage.elevationFt.toLocaleString()} ft`}
+          sub={isMetric ? `${stage.elevationFt.toLocaleString()} ft` : `${stage.elevationM.toLocaleString()} m`}
+          icon="↑"
+        />
         <InfoCard label="Est. Time" value={stage.estimatedTime.split('–')[0].trim()} sub={`to ${stage.estimatedTime.split('–')[1]?.trim()}`} icon="⏱" />
       </div>
 

@@ -2,11 +2,13 @@ import React from 'react';
 import type { Stage } from '../data/stages';
 import { DifficultyBadge } from './DifficultyBadge';
 import { DifficultyBar } from './DifficultyBar';
+import type { UnitSystem } from '../types/units';
 
 interface Props {
   stage: Stage;
   isSelected: boolean;
   onClick: () => void;
+  unitSystem: UnitSystem;
 }
 
 const stageColors: Record<number, string> = {
@@ -37,8 +39,9 @@ const buildElevationPath = (stage: Stage) => {
     .join(' ');
 };
 
-export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick }) => {
+export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick, unitSystem }) => {
   const elevationPath = buildElevationPath(stage);
+  const isMetric = unitSystem === 'metric';
 
   return (
     <button
@@ -75,13 +78,13 @@ export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick }) => {
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
-            {stage.distanceMi} mi
+            {isMetric ? `${stage.distanceKm} km` : `${stage.distanceMi} mi`}
           </span>
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
-            {stage.elevationFt.toLocaleString()} ft
+            {isMetric ? `${stage.elevationM.toLocaleString()} m` : `${stage.elevationFt.toLocaleString()} ft`}
           </span>
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

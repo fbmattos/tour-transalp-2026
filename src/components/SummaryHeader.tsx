@@ -1,13 +1,22 @@
 import React from 'react';
 import type { Stage } from '../data/stages';
+import type { UnitSystem } from '../types/units';
 
 interface Props {
   stages: Stage[];
   isAboutOpen: boolean;
   onAboutClick: () => void;
+  unitSystem: UnitSystem;
+  onUnitSystemChange: (unitSystem: UnitSystem) => void;
 }
 
-export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutClick }) => {
+export const SummaryHeader: React.FC<Props> = ({
+  stages,
+  isAboutOpen,
+  onAboutClick,
+  unitSystem,
+  onUnitSystemChange,
+}) => {
   const totalKm = stages.reduce((s, st) => s + st.distanceKm, 0);
   const totalMi = stages.reduce((s, st) => s + st.distanceMi, 0);
   const totalElevationM = stages.reduce((s, st) => s + st.elevationM, 0);
@@ -15,6 +24,7 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
   const queenStage = stages.find((s) => s.badge === "Queen Stage")!;
   const hardestStage = stages.reduce((a, b) => (b.difficultyScore > a.difficultyScore ? b : a));
   const biggestFatigueRisk = stages[3];
+  const isMetric = unitSystem === 'metric';
 
   return (
     <div className="flex flex-wrap gap-3 items-center">
@@ -40,15 +50,47 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
 
       <div className="hidden flex-1 min-w-0 sm:block" />
 
+      <div className="flex rounded-full border border-white/10 bg-white/5 p-1 text-xs font-semibold">
+        {(['imperial', 'metric'] as const).map((system) => (
+          <button
+            key={system}
+            type="button"
+            aria-pressed={unitSystem === system}
+            onClick={() => onUnitSystemChange(system)}
+            className={`rounded-full px-3 py-1 transition-colors ${
+              unitSystem === system
+                ? 'bg-emerald-400 text-slate-950'
+                : 'text-white/55 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            {system === 'imperial' ? 'Imperial' : 'Metric'}
+          </button>
+        ))}
+      </div>
+
       {/* Stat pills */}
       <div className={`hidden flex-wrap gap-2 text-xs sm:flex ${isAboutOpen ? 'opacity-40' : ''}`}>
-        <StatPill icon="↔" label="Total" value={`${totalMi} mi`} sub={`${totalKm} km`} />
-        <StatPill icon="↑" label="Climbing" value={`${totalElevationFt.toLocaleString()} ft`} sub={`${totalElevationM.toLocaleString()} m`} />
+        <StatPill
+          icon="↔"
+          label="Total"
+          value={isMetric ? `${totalKm} km` : `${totalMi} mi`}
+          sub={isMetric ? `${totalMi} mi` : `${totalKm} km`}
+        />
+        <StatPill
+          icon="↑"
+          label="Climbing"
+          value={isMetric ? `${totalElevationM.toLocaleString()} m` : `${totalElevationFt.toLocaleString()} ft`}
+          sub={isMetric ? `${totalElevationFt.toLocaleString()} ft` : `${totalElevationM.toLocaleString()} m`}
+        />
         <StatPill
           icon="👑"
           label="Queen"
           value={`Stage ${queenStage.stageNumber}`}
-          sub={`${queenStage.distanceMi} mi / ${queenStage.elevationFt.toLocaleString()} ft`}
+          sub={
+            isMetric
+              ? `${queenStage.distanceKm} km / ${queenStage.elevationM.toLocaleString()} m`
+              : `${queenStage.distanceMi} mi / ${queenStage.elevationFt.toLocaleString()} ft`
+          }
           highlight="red"
         />
         <StatPill

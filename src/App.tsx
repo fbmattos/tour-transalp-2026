@@ -11,8 +11,8 @@ import { DifficultyBadge } from './components/DifficultyBadge';
 import { DifficultyBar } from './components/DifficultyBar';
 import { ElevationProfile } from './components/ElevationProfile';
 import { AboutView } from './components/AboutView';
+import type { UnitSystem } from './types/units';
 
-// TODO: Add metric/imperial toggle
 // TODO: Add cumulative fatigue chart across all 7 stages
 
 type MobileView = 'overview' | 'map' | 'profile' | 'details';
@@ -33,7 +33,7 @@ const MobileStat: React.FC<{ label: string; value: string; sub?: string }> = ({ 
   </div>
 );
 
-const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
+const MobileOverview: React.FC<{ stage: StageWithGpx; unitSystem: UnitSystem }> = ({ stage, unitSystem }) => (
   <div className="flex flex-col gap-4">
     <div>
       <div className="mb-2 flex items-center gap-2">
@@ -56,8 +56,24 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => (
     </div>
 
     <div className="grid grid-cols-3 gap-2">
-      <MobileStat label="Distance" value={`${stage.distanceMi} mi`} sub={`${stage.distanceKm} km`} />
-      <MobileStat label="Climbing" value={`${stage.elevationFt.toLocaleString()} ft`} sub={`${stage.elevationM.toLocaleString()} m`} />
+      <MobileStat
+        label="Distance"
+        value={unitSystem === 'metric' ? `${stage.distanceKm} km` : `${stage.distanceMi} mi`}
+        sub={unitSystem === 'metric' ? `${stage.distanceMi} mi` : `${stage.distanceKm} km`}
+      />
+      <MobileStat
+        label="Climbing"
+        value={
+          unitSystem === 'metric'
+            ? `${stage.elevationM.toLocaleString()} m`
+            : `${stage.elevationFt.toLocaleString()} ft`
+        }
+        sub={
+          unitSystem === 'metric'
+            ? `${stage.elevationFt.toLocaleString()} ft`
+            : `${stage.elevationM.toLocaleString()} m`
+        }
+      />
       <MobileStat label="Time" value={stage.estimatedTime.split('–')[0].trim()} sub={`to ${stage.estimatedTime.split('–')[1]?.trim()}`} />
     </div>
 
@@ -97,6 +113,7 @@ export default function App() {
   const [showAll, setShowAll] = useState(false);
   const [activeMobileView, setActiveMobileView] = useState<MobileView>('overview');
   const [activeView, setActiveView] = useState<AppView>('dashboard');
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>('imperial');
   const gpxStages = useGpxStages(stages);
 
   const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
@@ -125,6 +142,8 @@ export default function App() {
           stages={gpxStages}
           isAboutOpen={activeView === 'about'}
           onAboutClick={() => setActiveView('about')}
+          unitSystem={unitSystem}
+          onUnitSystemChange={setUnitSystem}
         />
       </header>
 
@@ -156,6 +175,7 @@ export default function App() {
                 key={stage.id}
                 stage={stage}
                 isSelected={stage.id === selectedId}
+                unitSystem={unitSystem}
                 onClick={() => {
                   setSelectedId(stage.id);
                   setShowAll(false);
@@ -224,7 +244,7 @@ export default function App() {
             </div>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4">
-            <StageDetail stage={selectedStage} />
+            <StageDetail stage={selectedStage} unitSystem={unitSystem} />
           </div>
         </aside>
       </div>
@@ -270,7 +290,7 @@ export default function App() {
           ))}
         </div>
 
-        {activeMobileView === 'overview' && <MobileOverview stage={selectedStage} />}
+        {activeMobileView === 'overview' && <MobileOverview stage={selectedStage} unitSystem={unitSystem} />}
 
         {activeMobileView === 'map' && (
           <div className="flex flex-col gap-3">
@@ -310,7 +330,7 @@ export default function App() {
 
         {activeMobileView === 'details' && (
           <div className="pb-8">
-            <StageDetail stage={selectedStage} />
+            <StageDetail stage={selectedStage} unitSystem={unitSystem} />
           </div>
         )}
       </div>
