@@ -3,11 +3,10 @@ import { DifficultyBadge } from './DifficultyBadge';
 import { DifficultyBar } from './DifficultyBar';
 import { ElevationProfile } from './ElevationProfile';
 import type { GpxStatus, StageWithGpx } from '../hooks/useGpxStages';
-import type { UnitSystem } from '../types/units';
+import { useUnits } from '../context/UnitsContext';
 
 interface Props {
   stage: StageWithGpx;
-  unitSystem: UnitSystem;
 }
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -49,9 +48,8 @@ const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
   </div>
 );
 
-export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
-  const isMetric = unitSystem === 'metric';
-
+export const StageDetail: React.FC<Props> = ({ stage }) => {
+  const { formatDistance, formatElevation, formatDistanceMark, distanceUnit, distanceValue } = useUnits();
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
@@ -77,18 +75,8 @@ export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
 
       {/* Key stats */}
       <div className="grid grid-cols-3 gap-2">
-        <InfoCard
-          label="Distance"
-          value={isMetric ? `${stage.distanceKm} km` : `${stage.distanceMi} mi`}
-          sub={isMetric ? `${stage.distanceMi} mi` : `${stage.distanceKm} km`}
-          icon="↔"
-        />
-        <InfoCard
-          label="Climbing"
-          value={isMetric ? `${stage.elevationM.toLocaleString()} m` : `${stage.elevationFt.toLocaleString()} ft`}
-          sub={isMetric ? `${stage.elevationFt.toLocaleString()} ft` : `${stage.elevationM.toLocaleString()} m`}
-          icon="↑"
-        />
+        <InfoCard label="Distance" value={formatDistance(stage.distanceKm, stage.distanceMi)} icon="↔" />
+        <InfoCard label="Climbing" value={formatElevation(stage.elevationM, stage.elevationFt)} icon="↑" />
         <InfoCard label="Est. Time" value={stage.estimatedTime.split('–')[0].trim()} sub={`to ${stage.estimatedTime.split('–')[1]?.trim()}`} icon="⏱" />
       </div>
 
@@ -98,18 +86,18 @@ export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
         <div className="grid grid-cols-3 gap-2">
           <InfoCard
             label="GPX Distance"
-            value={`${stage.gpxStats.totalDistanceKm.toLocaleString()} km`}
-            sub={`${Math.round(stage.gpxStats.totalDistanceKm * 0.621371).toLocaleString()} mi measured`}
+            value={formatDistance(stage.gpxStats.totalDistanceKm)}
+            sub="measured"
           />
           <InfoCard
             label="GPX Gain"
-            value={`${stage.gpxStats.totalElevationGainM.toLocaleString()} m`}
-            sub={`${Math.round(stage.gpxStats.totalElevationGainM * 3.28084).toLocaleString()} ft measured`}
+            value={formatElevation(stage.gpxStats.totalElevationGainM)}
+            sub="measured"
           />
           <InfoCard
             label="GPX Points"
             value={stage.gpxStats.pointCount.toLocaleString()}
-            sub={`${stage.gpxStats.minElevationM.toLocaleString()}-${stage.gpxStats.maxElevationM.toLocaleString()} m`}
+            sub={`${formatElevation(stage.gpxStats.minElevationM)} – ${formatElevation(stage.gpxStats.maxElevationM)}`}
           />
         </div>
       )}
@@ -123,19 +111,19 @@ export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
               </p>
               <p className="mt-1 text-2xl font-black leading-none text-white">
                 {stage.gpxStats.steepestGrade.gradientPct}% for{' '}
-                {stage.gpxStats.steepestGrade.distanceMi.toLocaleString()} mi
+                {formatDistance(stage.gpxStats.steepestGrade.distanceKm, stage.gpxStats.steepestGrade.distanceMi)}
               </p>
             </div>
             <div className="rounded-lg bg-white/5 px-3 py-2 text-right">
               <p className="text-[10px] uppercase tracking-wider text-white/35">Gain</p>
               <p className="text-sm font-bold text-orange-200">
-                {stage.gpxStats.steepestGrade.elevationGainM.toLocaleString()} m
+                {formatElevation(stage.gpxStats.steepestGrade.elevationGainM)}
               </p>
             </div>
           </div>
           <p className="mt-2 text-xs text-white/45">
-            GPX average from km {stage.gpxStats.steepestGrade.startDistanceKm.toLocaleString()} to{' '}
-            {stage.gpxStats.steepestGrade.endDistanceKm.toLocaleString()} using 0.5, 1, and 2 mi windows.
+            GPX average from {distanceUnit} {distanceValue(stage.gpxStats.steepestGrade.startDistanceKm, 1).toLocaleString()} to{' '}
+            {distanceValue(stage.gpxStats.steepestGrade.endDistanceKm, 1).toLocaleString()} using 0.5, 1, and 2 mi windows.
           </p>
         </div>
       )}
@@ -171,12 +159,12 @@ export const StageDetail: React.FC<Props> = ({ stage, unitSystem }) => {
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <p className="text-sm font-semibold text-emerald-300">{climb.name}</p>
                   <div className="flex gap-3 text-[10px] text-white/40 flex-shrink-0">
-                    <span>km {climb.approximateKm}</span>
-                    <span>{climb.summitElevationM.toLocaleString()} m</span>
+                    <span>{formatDistanceMark(climb.approximateKm)}</span>
+                    <span>{formatElevation(climb.summitElevationM)}</span>
                   </div>
                 </div>
                 <div className="mb-2 flex gap-3 text-[10px] text-white/35">
-                  <span>{climb.lengthKm ? `~${climb.lengthKm} km climb` : 'length TBD'}</span>
+                  <span>{climb.lengthKm ? `~${formatDistance(climb.lengthKm, undefined, 1)} climb` : 'length TBD'}</span>
                   <span>{climb.maxGradient ? `~${climb.maxGradient}% max` : 'gradient TBD'}</span>
                   <span>{stage.gpxStatus === 'loaded' ? 'GPX-aligned marker' : 'estimated marker'}</span>
                 </div>

@@ -1,4 +1,5 @@
 import type { Stage } from '../data/stages';
+import { useUnits } from '../context/UnitsContext';
 
 interface Props {
   stages: Stage[];
@@ -14,6 +15,7 @@ const getDifficultyTone = (score: number) => {
 };
 
 export const ClimbDifficultySkyline = ({ stages, selectedId, onSelect }: Props) => {
+  const { formatElevation, isImperial } = useUnits();
   const maxElevation = Math.max(...stages.map((stage) => stage.elevationFt));
   const maxDensity = Math.max(...stages.map((stage) => stage.elevationFt / stage.distanceMi));
 
@@ -36,7 +38,11 @@ export const ClimbDifficultySkyline = ({ stages, selectedId, onSelect }: Props) 
               key={stage.id}
               onClick={() => onSelect(stage.id)}
               className="group flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 transition-colors hover:bg-white/5"
-              title={`Stage ${stage.stageNumber}: ${stage.elevationFt.toLocaleString()} ft, ${Math.round(stage.elevationFt / stage.distanceMi)} ft/mi`}
+              title={`Stage ${stage.stageNumber}: ${formatElevation(stage.elevationM, stage.elevationFt)}, ${
+                isImperial
+                  ? `${Math.round(stage.elevationFt / stage.distanceMi)} ft/mi`
+                  : `${Math.round(stage.elevationM / stage.distanceKm)} m/km`
+              }`}
             >
               <div className="relative flex h-16 w-full items-end justify-center">
                 <div
