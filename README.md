@@ -10,16 +10,7 @@ This dashboard helps us prepare, share the adventure with friends and family, fo
 
 ### Woodenlegs
 
-Founded in Seattle and united by a questionable love of climbing, Woodenlegs is a group of friends who make an annual pilgrimage to Europe in search of epic rides. Tour Transalp 2026 is our biggest challenge yet.
-
-- **Fernando Mattos** - Boca Raton, Florida, USA
-  - Team photographer, Instagram documentarian, and likely source of all incriminating evidence.
-- **Sergio Clemente** - Kirkland, WA, USA
-  - The instigator-in-chief: picked Transalp, built the plan, and convinced everyone this was a good idea.
-- **Marcelo "Albuca" Albuquerque** - Issaquah, WA, USA
-  - The detail machine: structured, prepared, and probably already knows the gradient of tomorrow's climb.
-- **Eduardo Laureano** - Bellevue, WA, USA
-  - Fearless descender with a suspicious comfort level around trucks, switchbacks, and bad ideas.
+Founded in Seattle and united by a questionable love of climbing, Woodenlegs is a group of friends who make an annual pilgrimage to Europe in search of epic rides.
 
 ## About Tour Transalp
 
@@ -53,21 +44,6 @@ Good fits include:
 - Local club adventures
 
 Most event-specific content lives in data/config files, so another team can adapt the dashboard without rewriting the application.
-
-## Links
-
-- Fernando Instagram: <https://www.instagram.com/fbmattos77/>
-- Fernando Strava: <https://www.strava.com/athletes/575265>
-- Sergio Instagram: <https://www.instagram.com/sergio.clemente.f/>
-- Sergio Strava: <https://www.strava.com/athletes/1785396>
-- Marcelo Instagram: <https://www.instagram.com/albuqm/>
-- Marcelo Strava: <https://www.strava.com/athletes/2309909>
-- Eduardo Instagram: <https://www.instagram.com/eduardolaureano/>
-- Eduardo Strava: <https://www.strava.com/athletes/102908>
-- Official Tour Transalp website: <https://event.delius-klasing.de/en/tour-transalp/event/>
-- Official Tour Transalp Instagram: <https://www.instagram.com/tourtransalp/>
-- Gran Fondo Guide: <https://www.granfondoguide.com/Events/Index/5927/tour-transalp>
-- StageRaces: <https://stageraces.com/event/tour-transalp/>
 
 ## Tech Stack
 
