@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Stage } from '../data/stages';
 import { useUnits } from '../context/UnitsContext';
+import { event } from '../data/event';
+import { team } from '../data/team';
 
 interface Props {
   stages: Stage[];
@@ -24,11 +26,10 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
       {/* Race title */}
       <div className="flex-shrink-0">
         <h1 className="text-xl font-black text-white tracking-tight leading-none">
-          Tour Transalp{' '}
-          <span className="text-emerald-400">2026</span>
+          {event.name}
         </h1>
         <p className="text-xs text-white/40 mt-0.5">
-          Fernando Mattos · Tour Transalp 2026: The epic road bike stage race across the Alps · June 21-27
+          {team.name} · {event.name}: {event.location} · {event.dates}
         </p>
         {!isAboutOpen && (
           <button
@@ -36,7 +37,7 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
             onClick={onAboutClick}
             className="mt-1 block text-xs font-semibold text-emerald-300/80 underline decoration-emerald-300/35 underline-offset-4 transition-colors hover:text-emerald-200"
           >
-            About this dashboard and Tour Transalp
+            About this dashboard and {event.shortName ?? event.name}
           </button>
         )}
       </div>

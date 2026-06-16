@@ -13,6 +13,7 @@ import { ElevationProfile } from './components/ElevationProfile';
 import { AboutView } from './components/AboutView';
 import { UnitToggle, type UnitToggleVariant } from './components/UnitToggle';
 import { useUnits } from './context/UnitsContext';
+import { event } from './data/event';
 
 // TODO: Add cumulative fatigue chart across all 7 stages
 
@@ -113,7 +114,7 @@ export default function App() {
   const routeStatus = (
     <>
       {showAll
-        ? 'All 7 stages'
+        ? `All ${event.totalStages} stages`
         : `Stage ${selectedStage.stageNumber}: ${selectedStage.start.split(',')[0]} → ${selectedStage.finish.split(',')[0]}`}
       {selectedStage.gpxStatus === 'loading' && ' · loading GPX'}
       {selectedStage.gpxStatus === 'loaded' && ` · GPX ${selectedStage.gpxStats?.pointCount.toLocaleString()} pts`}
@@ -148,7 +149,7 @@ export default function App() {
         {/* Left sidebar — stage cards */}
         <aside className="flex-shrink-0 w-72 min-h-0 border-r border-white/10 bg-slate-900/60 backdrop-blur-sm flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-white/50">7 Stages</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-white/50">{event.totalStages} Stages</h2>
             <span className="text-xs text-white/30">
               {formatDistance(
                 gpxStages.reduce((s, st) => s + st.distanceKm, 0),

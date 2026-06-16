@@ -1,21 +1,8 @@
 import React from 'react';
 import { useUnits } from '../context/UnitsContext';
-
-const fernandoLinks = [
-  { label: 'Instagram', href: 'https://www.instagram.com/fbmattos77/' },
-  { label: 'Strava', href: 'https://strava.app.link/lLgTvuuVS3b' },
-];
-
-const projectLinks = [
-  { label: 'GitHub repo', href: 'https://github.com/fbmattos/tour-transalp-2026' },
-];
-
-const eventLinks = [
-  { label: 'Official website', href: 'https://event.delius-klasing.de/en/tour-transalp/event/' },
-  { label: 'Official Instagram', href: 'https://www.instagram.com/tourtransalp/' },
-  { label: 'Gran Fondo Guide', href: 'https://www.granfondoguide.com/Events/Index/5927/tour-transalp' },
-  { label: 'StageRaces', href: 'https://stageraces.com/event/tour-transalp/' },
-];
+import { event } from '../data/event';
+import { team } from '../data/team';
+import { riders } from '../data/riders';
 
 const LinkChip: React.FC<{ href: string; label: string }> = ({ href, label }) => (
   <a
@@ -52,6 +39,8 @@ const Fact: React.FC<{ label: string; value: string; sub?: string }> = ({ label,
 
 export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { formatDistance, formatElevation } = useUnits();
+  const primaryRider = riders[0];
+
   return (
   <main className="flex-1 overflow-y-auto px-4 py-5 lg:px-8 lg:py-8">
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
@@ -68,33 +57,29 @@ export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           About This Dashboard
         </p>
         <h2 className="max-w-4xl text-2xl font-black leading-tight text-white lg:text-4xl">
-          Fernando Mattos at Tour Transalp 2026
+          {team.name} at {event.name}
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 lg:text-base">
-          Fernando Mattos is riding Tour Transalp 2026 from June 21-27, 2026. This is a personal
-          route, climbing, GPX profile, and pacing dashboard for preparing for and following the
-          seven-day race across the Alps.
+          {primaryRider.name} is riding {event.name} from {event.dates}. {team.description}
         </p>
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
         <section className="rounded-xl border border-white/10 bg-white/5 p-5">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/35">
-            About Tour Transalp
+            About {event.name}
           </p>
           <p className="text-sm leading-relaxed text-white/65">
-            Tour Transalp is a fascinating and spectacular seven-day road cycling stage race across
-            the Alps. The 2026 event is the 22nd edition and brings riders from more than 35
-            countries to a professional stage-race format.
+            {event.description}
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
-            <Fact label="Race" value="7 stages" />
-            <Fact label="Edition" value="22nd" />
-            <Fact label="Distance" value={formatDistance(746, 465)} />
-            <Fact label="Climbing" value={formatElevation(17180, 56365)} />
+            <Fact label="Race" value={`${event.totalStages} stages`} />
+            {event.edition && <Fact label="Edition" value={event.edition} />}
+            <Fact label="Distance" value={formatDistance(event.distanceKm, event.distanceMi)} />
+            <Fact label="Climbing" value={formatElevation(event.elevationM, event.elevationFt)} />
           </div>
           <div className="mt-5">
-            <LinkGroup title="Event Resources" links={eventLinks} />
+            <LinkGroup title="Event Resources" links={event.links} />
           </div>
         </section>
 
@@ -103,12 +88,11 @@ export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             About This Dashboard
           </p>
           <p className="text-sm leading-relaxed text-white/65">
-            This project was created with a combination of Claude Code and Codex to help Fernando
-            prepare for the event, study each stage, and make the route easier to follow.
+            {primaryRider.funFact}
           </p>
           <div className="mt-5 flex flex-col gap-4">
-            <LinkGroup title="Follow Fernando" links={fernandoLinks} />
-            <LinkGroup title="Source Code" links={projectLinks} />
+            {primaryRider.socialLinks && <LinkGroup title={`Follow ${primaryRider.name.split(' ')[0]}`} links={primaryRider.socialLinks} />}
+            <LinkGroup title="Source Code" links={team.links} />
           </div>
         </section>
       </div>

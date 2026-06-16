@@ -77,6 +77,9 @@ npm run preview  # preview the production build locally
 
 ## Project Structure
 
+- `src/data/event.ts` contains event-level metadata such as event name, dates, location, hero image, description, totals, and event links.
+- `src/data/team.ts` contains team-level metadata such as team name, rider count, team description, and project/team links.
+- `src/data/riders.ts` contains rider profiles, headshots, goals, optional stats, and optional social links.
 - `src/data/stages.ts` contains stage metadata, summary copy, pacing notes, and climb cards.
 - `src/data/profileClimbSegments.ts` defines the GPX profile climb overlays.
 - `public/gpx/` contains the route GPX files used for maps and elevation profiles.
@@ -85,7 +88,9 @@ npm run preview  # preview the production build locally
 
 ## Modifying Route or Stage Content
 
-For narrative or stage detail changes, start with `src/data/stages.ts`.
+For event, team, or rider changes, start with `src/data/event.ts`, `src/data/team.ts`, and `src/data/riders.ts`.
+
+For narrative or stage detail changes, update `src/data/stages.ts`.
 
 For climb overlays on the elevation profile, update `src/data/profileClimbSegments.ts`. These segment windows are used with the GPX elevation profile to derive climb gain, gradient, category, and conservative climb-time estimates.
 
