@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { stages } from './data/stages';
 import { SummaryHeader } from './components/SummaryHeader';
 import { StageCard } from './components/StageCard';
@@ -331,6 +332,7 @@ export default function App() {
         )}
       </div>
       )}
+      <Analytics />
     </div>
   );
 }
