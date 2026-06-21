@@ -76,13 +76,16 @@ const climbContext = (stage: StageWithGpx) => {
     .join('\n');
 };
 
+const GPX_REPO_BASE_URL = 'https://raw.githubusercontent.com/fbmattos/tour-transalp-2026/main/public';
+
+const buildGpxUrl = (gpxFile: string) => `${GPX_REPO_BASE_URL}${encodeURI(gpxFile)}`;
+
 const buildStageClipboardContext = (stage: StageWithGpx) => {
-  const gpxText = stage.gpxText?.trim() ?? 'GPX file is still loading or unavailable. Try copying again once the route has loaded.';
   const gpxStats = stage.gpxStats
     ? `GPX-measured route: ${stage.gpxStats.totalDistanceKm.toLocaleString()} km, ${stage.gpxStats.totalElevationGainM.toLocaleString()} m gain, ${stage.gpxStats.pointCount.toLocaleString()} track points.`
     : 'GPX-measured route statistics are not available yet.';
 
-  return `Tour Transalp 2026 ride-planning context\n\nThis is Stage ${stage.stageNumber} of the seven-day Tour Transalp 2026 stage tour, a point-to-point Alpine road cycling event. The route for this stage goes from ${stage.start} to ${stage.finish}. ${difficultyContext(stage)}\n\nStage overview: ${stage.summary}\n\nOfficial stage stats: ${stage.distanceKm.toLocaleString()} km / ${stage.distanceMi.toLocaleString()} mi with ${stage.elevationM.toLocaleString()} m / ${stage.elevationFt.toLocaleString()} ft of climbing. Estimated riding time: ${stage.estimatedTime}. Difficulty score: ${stage.difficultyScore}/10 (${stage.badge}).\n\n${gpxStats}\n\nKey climbs and terrain:\n${climbContext(stage)}\n\nMain risk: ${stage.mainRisk}\n\nPacing advice: ${stage.pacingAdvice}\n\nPlease use this context and the full GPX below to create a practical ride plan with pacing, fueling, hydration, climb-by-climb strategy, descent cautions, and contingency notes for weather/fatigue.\n\nFull GPX file:\n"""\n${gpxText}\n"""`;
+  return `Tour Transalp 2026 ride-planning context\n\nThis is Stage ${stage.stageNumber} of the seven-day Tour Transalp 2026 stage tour, a point-to-point Alpine road cycling event. The route for this stage goes from ${stage.start} to ${stage.finish}. ${difficultyContext(stage)}\n\nStage overview: ${stage.summary}\n\nOfficial stage stats: ${stage.distanceKm.toLocaleString()} km / ${stage.distanceMi.toLocaleString()} mi with ${stage.elevationM.toLocaleString()} m / ${stage.elevationFt.toLocaleString()} ft of climbing. Estimated riding time: ${stage.estimatedTime}. Difficulty score: ${stage.difficultyScore}/10 (${stage.badge}).\n\n${gpxStats}\n\nKey climbs and terrain:\n${climbContext(stage)}\n\nMain risk: ${stage.mainRisk}\n\nPacing advice: ${stage.pacingAdvice}\n\nPlease use this context and the linked GPX file to create a practical ride plan with pacing, fueling, hydration, climb-by-climb strategy, descent cautions, and contingency notes for weather/fatigue.\n\nGPX file link: ${buildGpxUrl(stage.gpxFile)}`;
 };
 
 const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
@@ -142,7 +145,6 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
         <button
           type="button"
           onClick={copyStageContext}
-          disabled={!stage.gpxText}
           className="mt-4 w-full rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/35"
         >
           <span className="block text-sm font-bold text-emerald-100">
@@ -151,9 +153,7 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
           <span className="mt-1 block text-xs text-white/50">
             {copyState === 'error'
               ? 'Clipboard access failed. Check browser permissions and try again.'
-              : stage.gpxText
-                ? 'Includes route summary, difficulty context, climb notes, pacing risks, and the full GPX file.'
-                : 'Loading the GPX file before the full context can be copied.'}
+              : 'Includes route summary, difficulty context, climb notes, pacing risks, and a GitHub link to the GPX file.'}
           </span>
         </button>
       </div>
