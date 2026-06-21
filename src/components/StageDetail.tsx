@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DifficultyBadge } from './DifficultyBadge';
 import { DifficultyBar } from './DifficultyBar';
 import { ElevationProfile } from './ElevationProfile';
 import type { GpxStatus, StageWithGpx } from '../hooks/useGpxStages';
 import { useUnits } from '../context/UnitsContext';
+import { raceTotals, stages } from '../data/stages';
 
 interface Props {
   stage: StageWithGpx;
@@ -29,6 +30,61 @@ const InfoCard: React.FC<{ label: string; value: string; sub?: string; icon?: st
   </div>
 );
 
+
+const stageRank = (stage: StageWithGpx) => {
+  const sorted = [...stages].sort((a, b) => b.difficultyScore - a.difficultyScore);
+  return sorted.findIndex((candidate) => candidate.id === stage.id) + 1;
+};
+
+const difficultyContext = (stage: StageWithGpx) => {
+  const rank = stageRank(stage);
+  const totalStages = stages.length;
+
+  if (stage.id === raceTotals.queenStage.id) {
+    return `This is the hardest day of the tour: ranked ${rank} of ${totalStages} by difficulty score, with the biggest climbing load and queen-stage designation.`;
+  }
+
+  if (rank <= 3) {
+    return `This is one of the hardest days of the tour: ranked ${rank} of ${totalStages} by difficulty score, so pacing and fueling matter almost as much as on the queen stage.`;
+  }
+
+  if (rank >= totalStages - 1) {
+    return `This is one of the more manageable days on paper: ranked ${rank} of ${totalStages} by difficulty score, though accumulated fatigue can still make it demanding.`;
+  }
+
+  return `This sits in the middle of the tour's difficulty range: ranked ${rank} of ${totalStages} by difficulty score, hard enough to require discipline without being the queen-stage peak.`;
+};
+
+const climbContext = (stage: StageWithGpx) => {
+  if (stage.climbs.length === 0) {
+    return 'No named climbs are currently listed for this stage; use the GPX profile for the detailed terrain.';
+  }
+
+  return stage.climbs
+    .map((climb) => {
+      const climbDetails = [
+        `around km ${climb.approximateKm}`,
+        `summit near ${climb.summitElevationM.toLocaleString()} m`,
+        climb.lengthKm ? `about ${climb.lengthKm} km long` : null,
+        climb.maxGradient ? `up to roughly ${climb.maxGradient}%` : null,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      return `- ${climb.name}: ${climbDetails}. ${climb.whyFamous}`;
+    })
+    .join('\n');
+};
+
+const buildStageClipboardContext = (stage: StageWithGpx) => {
+  const gpxText = stage.gpxText?.trim() ?? 'GPX file is still loading or unavailable. Try copying again once the route has loaded.';
+  const gpxStats = stage.gpxStats
+    ? `GPX-measured route: ${stage.gpxStats.totalDistanceKm.toLocaleString()} km, ${stage.gpxStats.totalElevationGainM.toLocaleString()} m gain, ${stage.gpxStats.pointCount.toLocaleString()} track points.`
+    : 'GPX-measured route statistics are not available yet.';
+
+  return `Tour Transalp 2026 ride-planning context\n\nThis is Stage ${stage.stageNumber} of the seven-day Tour Transalp 2026 stage tour, a point-to-point Alpine road cycling event. The route for this stage goes from ${stage.start} to ${stage.finish}. ${difficultyContext(stage)}\n\nStage overview: ${stage.summary}\n\nOfficial stage stats: ${stage.distanceKm.toLocaleString()} km / ${stage.distanceMi.toLocaleString()} mi with ${stage.elevationM.toLocaleString()} m / ${stage.elevationFt.toLocaleString()} ft of climbing. Estimated riding time: ${stage.estimatedTime}. Difficulty score: ${stage.difficultyScore}/10 (${stage.badge}).\n\n${gpxStats}\n\nKey climbs and terrain:\n${climbContext(stage)}\n\nMain risk: ${stage.mainRisk}\n\nPacing advice: ${stage.pacingAdvice}\n\nPlease use this context and the full GPX below to create a practical ride plan with pacing, fueling, hydration, climb-by-climb strategy, descent cautions, and contingency notes for weather/fatigue.\n\nFull GPX file:\n"""\n${gpxText}\n"""`;
+};
+
 const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
   <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
     <div className="rounded-lg bg-emerald-500/10 px-2 py-2">
@@ -50,6 +106,18 @@ const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
 
 export const StageDetail: React.FC<Props> = ({ stage }) => {
   const { formatDistance, formatElevation, formatDistanceMark, distanceUnit, distanceValue } = useUnits();
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  const copyStageContext = async () => {
+    try {
+      await navigator.clipboard.writeText(buildStageClipboardContext(stage));
+      setCopyState('copied');
+      window.setTimeout(() => setCopyState('idle'), 2500);
+    } catch {
+      setCopyState('error');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
@@ -71,6 +139,23 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
           <DifficultyBadge badge={stage.badge} color={stage.badgeColor} />
           <DifficultyBar score={stage.difficultyScore} />
         </div>
+        <button
+          type="button"
+          onClick={copyStageContext}
+          disabled={!stage.gpxText}
+          className="mt-4 w-full rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/35"
+        >
+          <span className="block text-sm font-bold text-emerald-100">
+            {copyState === 'copied' ? 'Copied stage context!' : 'Copy stage context to clipboard'}
+          </span>
+          <span className="mt-1 block text-xs text-white/50">
+            {copyState === 'error'
+              ? 'Clipboard access failed. Check browser permissions and try again.'
+              : stage.gpxText
+                ? 'Includes route summary, difficulty context, climb notes, pacing risks, and the full GPX file.'
+                : 'Loading the GPX file before the full context can be copied.'}
+          </span>
+        </button>
       </div>
 
       {/* Key stats */}
