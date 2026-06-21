@@ -10,6 +10,7 @@ export interface StageWithGpx extends Stage {
   gpxStatus: GpxStatus;
   gpxError?: string;
   gpxStats?: GpxStats;
+  gpxText?: string;
   profileClimbs: ProfileClimb[];
 }
 
@@ -30,6 +31,7 @@ export const useGpxStages = (stages: Stage[]): StageWithGpx[] => {
             ...current,
             [stage.id]: {
               gpxStatus: 'loaded',
+              gpxText: track.gpxText,
               routeCoordinates: track.routeCoordinates,
               startCoord: track.routeCoordinates[0],
               finishCoord: track.routeCoordinates[track.routeCoordinates.length - 1],

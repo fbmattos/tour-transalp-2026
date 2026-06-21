@@ -16,6 +16,7 @@ export interface ParsedGpxTrack {
   routeCoordinates: [number, number][];
   elevationProfile: GpxElevationPoint[];
   stats: GpxStats;
+  gpxText: string;
 }
 
 export interface GpxGradientSegment {
@@ -176,6 +177,7 @@ export const parseGpxTrack = (gpxText: string): ParsedGpxTrack => {
       pointCount: routeCoordinates.length,
       steepestGrade: findSteepestGrade(samples),
     },
+    gpxText,
   };
 };
 
