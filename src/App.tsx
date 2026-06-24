@@ -3,7 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { stages } from './data/stages';
 import { SummaryHeader } from './components/SummaryHeader';
 import { StageCard } from './components/StageCard';
-import { StageDetail } from './components/StageDetail';
+import { StageContextCopyButton, StageDetail } from './components/StageDetail';
 import { RouteMap } from './components/RouteMap';
 import { ClimbDifficultySkyline } from './components/ClimbDifficultySkyline';
 import { useGpxStages } from './hooks/useGpxStages';
@@ -22,14 +22,13 @@ import { event } from './data/event';
 // and the header toggle swaps live. See UnitToggle.tsx for the variants.
 const UNIT_TOGGLE_VARIANT: UnitToggleVariant = 'segmented';
 
-type MobileView = 'overview' | 'map' | 'profile' | 'details';
+type MobileView = 'overview' | 'map' | 'profile';
 type AppView = 'dashboard' | 'about';
 
 const mobileViews: { id: MobileView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'map', label: 'Map' },
   { id: 'profile', label: 'Profile' },
-  { id: 'details', label: 'Details' },
 ];
 
 const MobileStat: React.FC<{ label: string; value: string; sub?: string }> = ({ label, value, sub }) => (
@@ -99,6 +98,8 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => {
         <p className="text-sm leading-relaxed text-white/70">{stage.pacingAdvice}</p>
       </div>
     </div>
+
+    <StageContextCopyButton stage={stage} />
   </div>
   );
 };
@@ -271,7 +272,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 rounded-xl border border-white/10 bg-white/5 p-1">
+        <div className="grid grid-cols-3 rounded-xl border border-white/10 bg-white/5 p-1">
           {mobileViews.map((view) => (
             <button
               key={view.id}
@@ -322,12 +323,6 @@ export default function App() {
         {activeMobileView === 'profile' && (
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
             <ElevationProfile stage={selectedStage} />
-          </div>
-        )}
-
-        {activeMobileView === 'details' && (
-          <div className="pb-8">
-            <StageDetail stage={selectedStage} />
           </div>
         )}
       </div>

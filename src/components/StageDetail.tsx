@@ -107,8 +107,7 @@ const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
   </div>
 );
 
-export const StageDetail: React.FC<Props> = ({ stage }) => {
-  const { formatDistance, formatElevation, formatDistanceMark, distanceUnit, distanceValue } = useUnits();
+export const StageContextCopyButton: React.FC<Props> = ({ stage }) => {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
 
   const copyStageContext = async () => {
@@ -120,6 +119,27 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
       setCopyState('error');
     }
   };
+
+  return (
+    <button
+      type="button"
+      onClick={copyStageContext}
+      className="mt-4 w-full rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/35"
+    >
+      <span className="block text-sm font-bold text-emerald-100">
+        {copyState === 'copied' ? 'Copied stage context!' : 'Copy stage context to clipboard'}
+      </span>
+      <span className="mt-1 block text-xs text-white/50">
+        {copyState === 'error'
+          ? 'Clipboard access failed. Check browser permissions and try again.'
+          : 'Includes route summary, difficulty context, climb notes, pacing risks, and a GitHub link to the GPX file.'}
+      </span>
+    </button>
+  );
+};
+
+export const StageDetail: React.FC<Props> = ({ stage }) => {
+  const { formatDistance, formatElevation, formatDistanceMark, distanceUnit, distanceValue } = useUnits();
 
   return (
     <div className="flex flex-col gap-5">
@@ -142,20 +162,7 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
           <DifficultyBadge badge={stage.badge} color={stage.badgeColor} />
           <DifficultyBar score={stage.difficultyScore} />
         </div>
-        <button
-          type="button"
-          onClick={copyStageContext}
-          className="mt-4 w-full rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/35"
-        >
-          <span className="block text-sm font-bold text-emerald-100">
-            {copyState === 'copied' ? 'Copied stage context!' : 'Copy stage context to clipboard'}
-          </span>
-          <span className="mt-1 block text-xs text-white/50">
-            {copyState === 'error'
-              ? 'Clipboard access failed. Check browser permissions and try again.'
-              : 'Includes route summary, difficulty context, climb notes, pacing risks, and a GitHub link to the GPX file.'}
-          </span>
-        </button>
+        <StageContextCopyButton stage={stage} />
       </div>
 
       {/* Key stats */}
