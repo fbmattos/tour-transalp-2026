@@ -44,6 +44,17 @@ describe('App', () => {
     expect(screen.getAllByText(/114 km/i).length).toBeGreaterThan(0);
   });
 
+
+
+  it('shows the simplified mobile tab set', () => {
+    renderApp();
+
+    expect(screen.getByRole('button', { name: 'Overview' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Map' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Details' })).not.toBeInTheDocument();
+  });
+
   it('renders team and rider data on the About view', async () => {
     const user = userEvent.setup();
     renderApp();
