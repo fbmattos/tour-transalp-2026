@@ -90,6 +90,12 @@ const GPX_REPO_BASE_URL =
 const buildGpxUrl = (gpxFile: string) =>
   `${GPX_REPO_BASE_URL}${encodeURI(gpxFile)}`;
 
+const buildKmlFile = (gpxFile: string) =>
+  gpxFile.replace("/gpx/", "/kml/").replace(/\.gpx$/i, ".kml");
+
+const fileNameFromPath = (filePath: string) =>
+  filePath.split("/").at(-1) ?? filePath;
+
 const buildStageClipboardContext = (stage: StageWithGpx) => {
   const gpxStats = stage.gpxStats
     ? `GPX-measured route: ${stage.gpxStats.totalDistanceKm.toLocaleString()} km, ${stage.gpxStats.totalElevationGainM.toLocaleString()} m gain, ${stage.gpxStats.pointCount.toLocaleString()} track points.`
@@ -128,6 +134,38 @@ const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
     </div>
   </div>
 );
+
+export const StageDownloadButtons: React.FC<Props> = ({ stage }) => {
+  const kmlFile = buildKmlFile(stage.gpxFile);
+
+  const downloads = [
+    {
+      label: "Download GPX",
+      href: stage.gpxFile,
+      fileName: fileNameFromPath(stage.gpxFile),
+    },
+    {
+      label: "Download KML",
+      href: kmlFile,
+      fileName: fileNameFromPath(kmlFile),
+    },
+  ];
+
+  return (
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      {downloads.map((download) => (
+        <a
+          key={download.label}
+          href={download.href}
+          download={download.fileName}
+          className="rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-center text-xs font-bold text-white/75 transition hover:border-sky-300/60 hover:bg-sky-400/10 hover:text-sky-100"
+        >
+          {download.label}
+        </a>
+      ))}
+    </div>
+  );
+};
 
 export const StageContextCopyButton: React.FC<Props> = ({ stage }) => {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
@@ -220,6 +258,7 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
               <DifficultyBar score={stage.difficultyScore} />
             </div>
             <StageContextCopyButton stage={stage} />
+            <StageDownloadButtons stage={stage} />
           </div>
 
           {/* Key stats */}

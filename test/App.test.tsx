@@ -70,6 +70,17 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders GPX and KML download buttons for the selected stage", () => {
+    renderApp();
+
+    expect(
+      screen.getAllByRole("link", { name: "Download GPX" })[0],
+    ).toHaveAttribute("href", "/gpx/TT-2026 01 Lienz-Sillian_TRACK.gpx");
+    expect(
+      screen.getAllByRole("link", { name: "Download KML" })[0],
+    ).toHaveAttribute("href", "/kml/TT-2026 01 Lienz-Sillian_TRACK.kml");
+  });
+
   it("renders team and rider data on the About view", async () => {
     const user = userEvent.setup();
     renderApp();
