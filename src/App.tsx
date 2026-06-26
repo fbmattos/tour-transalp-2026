@@ -3,7 +3,11 @@ import { Analytics } from "@vercel/analytics/react";
 import { stages } from "./data/stages";
 import { SummaryHeader } from "./components/SummaryHeader";
 import { StageCard } from "./components/StageCard";
-import { StageContextCopyButton, StageDetail } from "./components/StageDetail";
+import {
+  StageContextCopyButton,
+  StageDetail,
+  StageDownloadButtons,
+} from "./components/StageDetail";
 import { RouteMap } from "./components/RouteMap";
 import { ClimbDifficultySkyline } from "./components/ClimbDifficultySkyline";
 import { useGpxStages } from "./hooks/useGpxStages";
@@ -144,6 +148,7 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => {
       </div>
 
       <StageContextCopyButton stage={stage} />
+      <StageDownloadButtons stage={stage} />
     </div>
   );
 };
