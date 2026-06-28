@@ -63,7 +63,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Map" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Profile" })).toBeInTheDocument();
     expect(
-      screen.getAllByRole("button", { name: "Videos" }).length,
+      screen.getAllByRole("button", { name: "Video" }).length,
     ).toBeGreaterThan(0);
     expect(
       screen.queryByRole("button", { name: "Details" }),

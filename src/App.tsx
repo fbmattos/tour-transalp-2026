@@ -34,7 +34,7 @@ const mobileViews: { id: MobileView; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "map", label: "Map" },
   { id: "profile", label: "Profile" },
-  { id: "videos", label: "Videos" },
+  { id: "videos", label: "Video" },
 ];
 
 const MobileStat: React.FC<{ label: string; value: string; sub?: string }> = ({

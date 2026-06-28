@@ -85,22 +85,6 @@ export const StageVideos: React.FC<Props> = ({ stage }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300/80">
-          Stage Video
-        </p>
-        <h3 className="mt-1 text-lg font-black text-white">
-          Instagram story short
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-white/55">
-          Add one YouTube Short URL per stage in{" "}
-          <code className="rounded bg-white/10 px-1 py-0.5 text-white/75">
-            public/videos/manifest.json
-          </code>
-          . The player is sized for vertical 9:16 story footage.
-        </p>
-      </div>
-
       {status === "loading" && (
         <p className="text-sm text-white/45">Loading video…</p>
       )}
@@ -133,21 +117,16 @@ export const StageVideos: React.FC<Props> = ({ stage }) => {
       )}
 
       {embedUrl && (
-        <figure className="mx-auto w-full max-w-xs overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl shadow-black/30">
-          <div className="aspect-[9/16] w-full bg-black">
-            <iframe
-              className="h-full w-full"
-              src={embedUrl}
-              title={`Stage ${stage.stageNumber} YouTube Short`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
-          </div>
-          <figcaption className="px-3 py-2 text-xs text-white/55">
-            Stage {stage.stageNumber} video
-          </figcaption>
-        </figure>
+        <div className="mx-auto aspect-[9/16] w-full max-w-xs overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl shadow-black/30">
+          <iframe
+            className="h-full w-full"
+            src={embedUrl}
+            title={`Stage ${stage.stageNumber} YouTube Short`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        </div>
       )}
     </div>
   );
