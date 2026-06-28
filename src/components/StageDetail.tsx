@@ -217,7 +217,7 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
       <div className="grid grid-cols-2 rounded-xl border border-white/10 bg-white/5 p-1">
         {[
           { id: "overview" as const, label: "Overview" },
-          { id: "videos" as const, label: "Videos" },
+          { id: "videos" as const, label: "Video" },
         ].map((tab) => (
           <button
             key={tab.id}
