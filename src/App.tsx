@@ -16,10 +16,12 @@ import { DifficultyBadge } from "./components/DifficultyBadge";
 import { DifficultyBar } from "./components/DifficultyBar";
 import { ElevationProfile } from "./components/ElevationProfile";
 import { AboutView } from "./components/AboutView";
+import { EventMomentsStrip } from "./components/EventMomentsStrip";
 import { StageVideos } from "./components/StageVideos";
 import { UnitToggle, type UnitToggleVariant } from "./components/UnitToggle";
 import { useUnits } from "./context/UnitsContext";
 import { event } from "./data/event";
+import { eventPhotos } from "./data/eventPhotos";
 import { resolveStageIdFromUrl, syncStageNumberToUrl } from "./utils/stageUrl";
 
 // TODO: Add cumulative fatigue chart across all 7 stages
@@ -198,6 +200,10 @@ export default function App() {
           unitToggle={<UnitToggle variant={UNIT_TOGGLE_VARIANT} />}
         />
       </header>
+
+      {activeView === "dashboard" && eventPhotos.length > 0 && (
+        <EventMomentsStrip photos={eventPhotos} />
+      )}
 
       {activeView === "about" && (
         <AboutView onBack={() => setActiveView("dashboard")} />

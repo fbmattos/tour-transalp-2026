@@ -1,6 +1,8 @@
 import React from 'react';
 import { useUnits } from '../context/UnitsContext';
+import { EventPhotoGrid } from './EventPhotoGrid';
 import { event } from '../data/event';
+import { eventPhotos } from '../data/eventPhotos';
 import { team } from '../data/team';
 import { riders, type Rider } from '../data/riders';
 
@@ -114,6 +116,8 @@ export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </p>
         </div>
       </section>
+
+      <EventPhotoGrid photos={eventPhotos} />
 
       <section>
         <div className="mb-3 flex items-center justify-between gap-3">
