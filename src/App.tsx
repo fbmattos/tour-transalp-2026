@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { stages } from "./data/stages";
 import { SummaryHeader } from "./components/SummaryHeader";
@@ -20,6 +20,7 @@ import { StageVideos } from "./components/StageVideos";
 import { UnitToggle, type UnitToggleVariant } from "./components/UnitToggle";
 import { useUnits } from "./context/UnitsContext";
 import { event } from "./data/event";
+import { resolveStageIdFromUrl, syncStageNumberToUrl } from "./utils/stageUrl";
 
 // TODO: Add cumulative fatigue chart across all 7 stages
 
@@ -154,13 +155,18 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => {
 };
 
 export default function App() {
-  const [selectedId, setSelectedId] = useState<string>(stages[0].id);
+  const [selectedId, setSelectedId] = useState(() => resolveStageIdFromUrl(stages));
   const [showAll, setShowAll] = useState(false);
   const [activeMobileView, setActiveMobileView] =
     useState<MobileView>("overview");
   const [activeView, setActiveView] = useState<AppView>("dashboard");
   const gpxStages = useGpxStages(stages);
   const { formatDistance } = useUnits();
+
+  useEffect(() => {
+    const stage = stages.find((s) => s.id === selectedId);
+    if (stage) syncStageNumberToUrl(stage.stageNumber);
+  }, [selectedId]);
 
   const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
   const routeStatus = (

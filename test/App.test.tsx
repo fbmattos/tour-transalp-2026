@@ -22,7 +22,12 @@ const renderApp = () =>
   );
 
 beforeEach(() => {
-  window.localStorage.clear();
+  try {
+    window.localStorage.clear();
+  } catch {
+    // jsdom may not provide localStorage in all environments
+  }
+  window.history.replaceState(null, "", "/");
 });
 
 describe("App", () => {
@@ -79,6 +84,27 @@ describe("App", () => {
     expect(
       screen.getAllByRole("link", { name: "Download KML" })[0],
     ).toHaveAttribute("href", "/kml/TT-2026 01 Lienz-Sillian_TRACK.kml");
+  });
+
+  it("opens the stage from the ?stage= query param", () => {
+    window.history.replaceState(null, "", "/?stage=2");
+    renderApp();
+
+    expect(
+      screen.getAllByRole("heading", { name: /Sillian → Falcade/i }).length,
+    ).toBeGreaterThan(0);
+    expect(window.location.search).toBe("?stage=2");
+  });
+
+  it("updates the URL when the selected stage changes", async () => {
+    const user = userEvent.setup();
+    renderApp();
+
+    expect(window.location.search).toBe("?stage=1");
+
+    await user.click(screen.getAllByRole("button", { name: "2" })[0]);
+
+    expect(window.location.search).toBe("?stage=2");
   });
 
   it("renders team and rider data on the About view", async () => {
