@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EventMomentsStrip } from '../src/components/EventMomentsStrip';
-import { eventPhotos } from '../src/data/eventPhotos';
+import { defaultEventPhotos } from '../src/data/eventPhotos';
 
-const testPhotos = eventPhotos.slice(0, 3);
+const testPhotos = defaultEventPhotos.slice(0, 3);
 
 describe('EventMomentsStrip', () => {
   beforeEach(() => {

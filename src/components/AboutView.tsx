@@ -2,7 +2,7 @@ import React from 'react';
 import { useUnits } from '../context/UnitsContext';
 import { EventPhotoGrid } from './EventPhotoGrid';
 import { event } from '../data/event';
-import { eventPhotos } from '../data/eventPhotos';
+import type { EventPhoto } from '../data/eventPhotos';
 import { team } from '../data/team';
 import { riders, type Rider } from '../data/riders';
 
@@ -84,7 +84,10 @@ const RiderCard: React.FC<{ rider: Rider }> = ({ rider }) => (
   </article>
 );
 
-export const AboutView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+export const AboutView: React.FC<{ onBack: () => void; eventPhotos: EventPhoto[] }> = ({
+  onBack,
+  eventPhotos,
+}) => {
   const { formatDistance, formatElevation } = useUnits();
 
   return (

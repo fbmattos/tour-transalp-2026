@@ -1,8 +1,20 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { event } from '../src/data/event';
-import { eventPhotos } from '../src/data/eventPhotos';
+import {
+  defaultEventPhotos,
+  type EventPhotoManifest,
+} from '../src/data/eventPhotos';
+import { parseEventPhotoManifest } from '../src/hooks/useEventPhotos';
 import { riders } from '../src/data/riders';
 import { stages } from '../src/data/stages';
 import { team } from '../src/data/team';
+
+const eventPhotoManifest = JSON.parse(
+  readFileSync(resolve('public/images/event/manifest.json'), 'utf8'),
+) as EventPhotoManifest;
+
+const eventPhotos = parseEventPhotoManifest(eventPhotoManifest);
 
 const expectNonEmptyString = (value: string, field: string) => {
   expect(value, field).toEqual(expect.any(String));
@@ -41,7 +53,7 @@ describe('event, team, and rider config', () => {
     expectValidLinks(event.links, 'event.links');
   });
 
-  it('defines event photo gallery entries', () => {
+  it('defines event photo gallery entries in the manifest', () => {
     expect(eventPhotos.length).toBeGreaterThanOrEqual(3);
 
     for (const photo of eventPhotos) {
@@ -51,6 +63,7 @@ describe('event, team, and rider config', () => {
     }
 
     expect(event.heroImage.src).toBe(eventPhotos[0].src);
+    expect(defaultEventPhotos[0].src).toBe(eventPhotos[0].src);
   });
 
   it('defines team metadata', () => {
