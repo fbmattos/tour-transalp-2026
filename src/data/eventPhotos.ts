@@ -4,7 +4,14 @@ export interface EventPhoto {
   caption?: string;
 }
 
-export const eventPhotos: EventPhoto[] = [
+export interface EventPhotoManifestEntry {
+  alt: string;
+  caption?: string;
+}
+
+export type EventPhotoManifest = Record<string, EventPhotoManifestEntry>;
+
+export const defaultEventPhotos: EventPhoto[] = [
   {
     src: '/images/event/moment-01.jpg',
     alt: 'Alpine landscape along the Tour Transalp route',
@@ -29,5 +36,3 @@ export const eventPhotos: EventPhoto[] = [
     alt: 'Mountain vista from the Tour Transalp',
   },
 ];
-
-export const featuredEventPhoto = eventPhotos[0];

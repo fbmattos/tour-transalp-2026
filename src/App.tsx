@@ -21,7 +21,7 @@ import { StageVideos } from "./components/StageVideos";
 import { UnitToggle, type UnitToggleVariant } from "./components/UnitToggle";
 import { useUnits } from "./context/UnitsContext";
 import { event } from "./data/event";
-import { eventPhotos } from "./data/eventPhotos";
+import { useEventPhotos } from "./hooks/useEventPhotos";
 import { resolveStageIdFromUrl, syncStageNumberToUrl } from "./utils/stageUrl";
 
 // TODO: Add cumulative fatigue chart across all 7 stages
@@ -163,6 +163,7 @@ export default function App() {
     useState<MobileView>("overview");
   const [activeView, setActiveView] = useState<AppView>("dashboard");
   const gpxStages = useGpxStages(stages);
+  const { photos: eventPhotos } = useEventPhotos();
   const { formatDistance } = useUnits();
 
   useEffect(() => {
@@ -206,7 +207,10 @@ export default function App() {
       )}
 
       {activeView === "about" && (
-        <AboutView onBack={() => setActiveView("dashboard")} />
+        <AboutView
+          onBack={() => setActiveView("dashboard")}
+          eventPhotos={eventPhotos}
+        />
       )}
 
       {/* ── Desktop layout ───────────────────────────────────── */}
