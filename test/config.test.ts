@@ -1,4 +1,5 @@
 import { event } from '../src/data/event';
+import { eventPhotos } from '../src/data/eventPhotos';
 import { riders } from '../src/data/riders';
 import { stages } from '../src/data/stages';
 import { team } from '../src/data/team';
@@ -38,6 +39,18 @@ describe('event, team, and rider config', () => {
     expectPositiveNumber(event.elevationFt, 'event.elevationFt');
     expect(event.totalStages).toBe(stages.length);
     expectValidLinks(event.links, 'event.links');
+  });
+
+  it('defines event photo gallery entries', () => {
+    expect(eventPhotos.length).toBeGreaterThanOrEqual(3);
+
+    for (const photo of eventPhotos) {
+      expectNonEmptyString(photo.src, 'eventPhoto.src');
+      expect(photo.src, 'eventPhoto.src').toMatch(/^\/images\/event\//);
+      expectNonEmptyString(photo.alt, 'eventPhoto.alt');
+    }
+
+    expect(event.heroImage.src).toBe(eventPhotos[0].src);
   });
 
   it('defines team metadata', () => {

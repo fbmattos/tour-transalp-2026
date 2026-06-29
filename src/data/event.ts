@@ -29,8 +29,8 @@ export const event: EventMetadata = {
   dates: 'June 21-27, 2026',
   location: 'Across the Alps',
   heroImage: {
-    src: '/favicon.svg',
-    alt: 'Tour Transalp 2026 dashboard mark',
+    src: '/images/event/moment-01.jpg',
+    alt: 'Alpine landscape along the Tour Transalp route',
   },
   description:
     'Tour Transalp is a fascinating and spectacular seven-day road cycling stage race across the Alps. The 2026 event is the 22nd edition and brings riders from more than 35 countries to a professional stage-race format.',
