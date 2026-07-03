@@ -1,10 +1,13 @@
-# Tour Transalp 2026 - Woodenlegs Dashboard
+# Woodenlegs Cycling Dashboard
 
-An interactive cycling event dashboard built to help the Woodenlegs prepare for Tour Transalp 2026: a seven-day road cycling stage race across the Alps.
+An interactive cycling dashboard for the Woodenlegs' multi-day road cycling trips — stage maps, elevation profiles, climb notes, and pacing. Each trip is a self-contained **manifest**, and one deployment renders one trip (chosen at build time via `VITE_TRIP`).
 
-What started as an annual European cycling trip somehow escalated into signing up for one of the most iconic amateur stage races in the world. After an unforgettable week riding through the Dolomites, the Woodenlegs decided that apparently we had not suffered enough.
+Trips currently in the repo:
 
-This dashboard helps us prepare, share the adventure with friends and family, follow each stage, and eventually preserve the memories from the trip.
+- **`transalp-2026`** — Tour Transalp 2026, a seven-day stage race across the Alps. *(Default; served by the existing Vercel deployment.)*
+- **`mallorca-2026`** — a five-day Mallorca camp: four riding days linking the Serra de Tramuntana, Sa Calobra, and Cap de Formentor, plus a rest day on the bay of Pollença.
+
+See [Multi-trip architecture](#multi-trip-architecture) for how trips are defined and selected.
 
 ## Meet the Team
 
@@ -12,11 +15,17 @@ This dashboard helps us prepare, share the adventure with friends and family, fo
 
 Founded in Seattle and united by a questionable love of climbing, Woodenlegs is a group of friends who make an annual pilgrimage to Europe in search of epic rides.
 
-## About Tour Transalp
+## About the Camp
 
-Tour Transalp 2026 runs from June 21-27, 2026 across the Alps. The 2026 edition is the 22nd edition, covering 465 mi / 746 km with 56,365 ft / 17,180 m of climbing and riders from more than 35 countries.
+The Mallorca Cycling Camp 2026 covers roughly 236 mi / 379 km with about 24,960 ft / 7,610 m of climbing across four riding days and one rest day:
 
-For cyclists, it is a spectacular multi-day test of climbing, descending, pacing, fueling, and group decision-making under fatigue. For friends and family, this dashboard is the "where are they now and why are they doing this?" map.
+1. Palma → Port de Sóller (west-coast opener)
+2. Port de Sóller → Sa Calobra → Port de Pollença (queen stage)
+3. Rest day (Port de Pollença)
+4. Cap de Formentor loop (from Port d'Alcúdia)
+5. Port d'Alcúdia → Palma (return across the Pla)
+
+For cyclists, it is a spectacular test of climbing, descending, pacing, and fueling. For friends and family, this dashboard is the "where are they now and why are they doing this?" map.
 
 ## Features
 
@@ -101,33 +110,44 @@ npm run test:e2e  # run Playwright smoke tests
 npm run preview   # preview the production build locally
 ```
 
-## Project Structure
+## Multi-trip architecture
 
-- `src/data/event.ts` contains event-level metadata such as event name, dates, location, hero image, description, totals, and event links.
-- `src/data/team.ts` contains team-level metadata such as team name, rider count, team description, team photo, and project/team links.
-- `src/data/riders.ts` contains rider profiles, locations, optional headshots, goals, optional stats, and optional social links.
-- `src/data/stages.ts` contains stage metadata, summary copy, pacing notes, and climb cards.
-- `src/data/profileClimbSegments.ts` defines the GPX profile climb overlays.
-- `public/gpx/` contains the route GPX files used for maps and elevation profiles.
-- `public/images/` contains team and event images.
-- `src/utils/gpx.ts` parses GPX files and derives route/profile stats.
-- `src/components/` contains the dashboard UI, map, profile, stage detail, team/about view, and shared controls.
+The dashboard renders **one trip per deployment**, chosen at build time — so several trips live in the same repo without touching each other. Nothing trip-specific is hardcoded in shared source.
 
-## Customizing for Your Own Event
+- `src/data/types.ts` — shared interfaces (`Stage`, `Rider`, `EventMetadata`, `TripManifest`, …).
+- `src/data/stageHelpers.ts` — shared authoring helpers (`estimatedRoute`, `estimatedProfile`).
+- `src/trips/<trip-id>/manifest.ts` — one self-contained **manifest** per trip: event, team, riders, stages, climbs, profile overlays, and event photos. **This is the only file you edit to change a trip.**
+- `public/trips/<trip-id>/` — that trip's assets (`gpx/`, `kml/`, `images/`, `videos/`). Each manifest carries an `assetBase` so the runtime photo/video manifests resolve correctly. (The original `transalp-2026` keeps root-hosted asset paths, `assetBase: ""`, to preserve its existing deployment.)
+- `src/data/activeTrip.ts` — selects the active manifest from `VITE_TRIP` (default `transalp-2026`) and computes derived values (`raceTotals`, …).
+- `src/data/*.ts` (`event.ts`, `stages.ts`, …) — thin re-export shims pointing at the active trip, so components never import a trip directly.
+- `src/components/` — the dashboard UI, map, profile, stage detail, team/about view, and shared controls.
 
-To adapt this dashboard for another cycling trip:
+### Selecting a trip per deployment
 
-- Update event information in `src/data/event.ts`.
-- Update team information in `src/data/team.ts`.
-- Update rider profiles in `src/data/riders.ts`.
-- Update stage information, route metadata, stage narrative, climb cards, and pacing notes in `src/data/stages.ts`.
-- Update climb overlays in `src/data/profileClimbSegments.ts`.
-- Add GPX files to `public/gpx/` and update the matching `gpxFile` paths in `src/data/stages.ts`.
-- Add images to the appropriate folders under `public/images/`.
+Set the `VITE_TRIP` build-time env var to a trip id:
 
-For a Mallorca camp, for example, you would mostly replace the event/team/rider data, add the route GPX files, and rewrite the stage entries for each ride.
+```bash
+npm run build                        # default → transalp-2026 (unchanged Vercel behaviour)
+VITE_TRIP=mallorca-2026 npm run build # → Mallorca
+```
 
-After any route, config, or copy change, run:
+- **Vercel** serves Transalp with no configuration (the default).
+- **Fly.io** builds Mallorca via the `VITE_TRIP` build arg in `Dockerfile` / `fly.toml`.
+
+An unknown `VITE_TRIP` logs a warning and falls back to the default.
+
+## Adding or customizing a trip
+
+To add a new trip (e.g. `dolomites-2027`):
+
+1. Create `src/trips/dolomites-2027/manifest.ts` exporting a `TripManifest` (copy an existing manifest as a template).
+2. Add its assets under `public/trips/dolomites-2027/{gpx,kml,images,videos}` and set the manifest's `assetBase` to `/trips/dolomites-2027`.
+3. Register it in `src/data/activeTrip.ts`'s `TRIPS` map.
+4. Build it with `VITE_TRIP=dolomites-2027`.
+
+To update an existing trip, edit only its `manifest.ts` and its assets. Keep exactly one stage with `badge: "Queen Stage"`; mark any rest day with `isRestDay: true` (distance/elevation `0`, `gpxFile: ""`).
+
+After any manifest, route, or copy change, run:
 
 ```bash
 npm run build
@@ -140,4 +160,28 @@ If you change navigation, maps, or page-level behavior, also run:
 npm run test:e2e
 ```
 
-Deployments can be handled with any static hosting provider that supports Vite builds, including Vercel.
+## Deployment
+
+The app is a static Vite build (`npm run build` → `dist/`) and can be hosted on any static provider.
+
+### Fly.io
+
+This repo includes `Dockerfile`, `nginx.conf`, `.dockerignore`, and `fly.toml` for a container that builds the app and serves `dist/` with nginx (SPA fallback included).
+
+One-time setup, then deploy:
+
+```bash
+brew install flyctl          # if needed
+fly auth login
+fly launch --no-deploy       # claim the app name in fly.toml (edit `app`/`primary_region` first)
+fly deploy
+```
+
+Notes:
+
+- The nginx config listens on port 8080 to match `internal_port` in `fly.toml`.
+- `@vercel/analytics` still loads client-side but only reports when hosted on Vercel; it is harmless elsewhere.
+
+### Other static hosts
+
+Any provider that supports a Vite build works (Vercel, Netlify, Cloudflare Pages, etc.): build command `npm run build`, output directory `dist/`, with an SPA fallback to `index.html`.

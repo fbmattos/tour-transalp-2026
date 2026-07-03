@@ -48,7 +48,7 @@ export const EventMomentsStrip: React.FC<Props> = ({ photos }) => {
       >
         <div className="flex items-center justify-between gap-3 px-4 py-2">
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">
-            Moments from the Alps
+            Moments from the trip
           </p>
           <button
             type="button"

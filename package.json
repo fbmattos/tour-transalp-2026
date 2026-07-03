@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mallorca": "VITE_TRIP=mallorca-2026 vite",
+    "dev:transalp": "VITE_TRIP=transalp-2026 vite",
     "build": "tsc -b && vite build",
+    "build:mallorca": "VITE_TRIP=mallorca-2026 npm run build",
+    "build:transalp": "VITE_TRIP=transalp-2026 npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",

@@ -21,6 +21,8 @@ import { StageVideos } from "./components/StageVideos";
 import { UnitToggle, type UnitToggleVariant } from "./components/UnitToggle";
 import { useUnits } from "./context/UnitsContext";
 import { event } from "./data/event";
+import { team } from "./data/team";
+import { showAbout } from "./data/activeTrip";
 import { useEventPhotos } from "./hooks/useEventPhotos";
 import { resolveStageIdFromUrl, syncStageNumberToUrl } from "./utils/stageUrl";
 
@@ -93,7 +95,11 @@ const MobileOverview: React.FC<{ stage: StageWithGpx }> = ({ stage }) => {
         <MobileStat
           label="Time"
           value={stage.estimatedTime.split("–")[0].trim()}
-          sub={`to ${stage.estimatedTime.split("–")[1]?.trim()}`}
+          sub={
+            stage.estimatedTime.includes("–")
+              ? `to ${stage.estimatedTime.split("–")[1]?.trim()}`
+              : undefined
+          }
         />
       </div>
 
@@ -171,6 +177,11 @@ export default function App() {
     if (stage) syncStageNumberToUrl(stage.stageNumber);
   }, [selectedId]);
 
+  // Title comes from the active trip, so the shared index.html can stay generic.
+  useEffect(() => {
+    document.title = `${event.name} — ${team.name} Dashboard`;
+  }, []);
+
   const selectedStage = gpxStages.find((s) => s.id === selectedId)!;
   const routeStatus = (
     <>
@@ -206,7 +217,7 @@ export default function App() {
         <EventMomentsStrip photos={eventPhotos} />
       )}
 
-      {activeView === "about" && (
+      {showAbout && activeView === "about" && (
         <AboutView
           onBack={() => setActiveView("dashboard")}
           eventPhotos={eventPhotos}

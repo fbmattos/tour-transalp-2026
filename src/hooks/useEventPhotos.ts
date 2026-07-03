@@ -4,14 +4,18 @@ import {
   type EventPhoto,
   type EventPhotoManifest,
 } from '../data/eventPhotos';
+import { assetBase } from '../data/activeTrip';
 
 export type EventPhotosStatus = 'loading' | 'ready' | 'error';
 
-export const parseEventPhotoManifest = (manifest: EventPhotoManifest): EventPhoto[] =>
+export const parseEventPhotoManifest = (
+  manifest: EventPhotoManifest,
+  base = '',
+): EventPhoto[] =>
   Object.entries(manifest)
     .sort(([left], [right]) => left.localeCompare(right, undefined, { numeric: true }))
     .map(([file, entry]) => ({
-      src: `/images/event/${file}`,
+      src: `${base}/images/event/${file}`,
       alt: entry.alt,
       ...(entry.caption ? { caption: entry.caption } : {}),
     }));
@@ -30,7 +34,7 @@ export const useEventPhotos = () => {
       }
 
       try {
-        const response = await fetch('/images/event/manifest.json', {
+        const response = await fetch(`${assetBase}/images/event/manifest.json`, {
           cache: 'no-cache',
         });
         if (!response.ok) {
@@ -40,7 +44,7 @@ export const useEventPhotos = () => {
         const manifest = (await response.json()) as EventPhotoManifest;
         if (!isMounted) return;
 
-        setPhotos(parseEventPhotoManifest(manifest));
+        setPhotos(parseEventPhotoManifest(manifest, assetBase));
         setStatus('ready');
       } catch {
         if (!isMounted) return;

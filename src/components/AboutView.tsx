@@ -54,11 +54,15 @@ const RiderCard: React.FC<{ rider: Rider }> = ({ rider }) => (
         <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-emerald-300/70">
           {rider.role}
         </p>
-        <p className="mt-1 text-xs text-white/45">{rider.location}</p>
+        {rider.location && (
+          <p className="mt-1 text-xs text-white/45">{rider.location}</p>
+        )}
       </div>
     </div>
 
-    <p className="mt-3 text-sm leading-relaxed text-white/65">{rider.shortLine ?? rider.funFact}</p>
+    {(rider.shortLine ?? rider.funFact) && (
+      <p className="mt-3 text-sm leading-relaxed text-white/65">{rider.shortLine ?? rider.funFact}</p>
+    )}
 
     {rider.bike && (
       <p className="mt-3 text-xs text-white/45">

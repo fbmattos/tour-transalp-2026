@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { StageWithGpx } from "../hooks/useGpxStages";
+import { assetBase } from "../data/activeTrip";
 
 type StageVideoManifest = Record<string, string | null | undefined>;
 
@@ -52,7 +53,7 @@ export const StageVideos: React.FC<Props> = ({ stage }) => {
       }
 
       try {
-        const response = await fetch("/videos/manifest.json", {
+        const response = await fetch(`${assetBase}/videos/manifest.json`, {
           cache: "no-cache",
         });
         if (!response.ok) {

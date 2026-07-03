@@ -31,3 +31,7 @@ build
 coverage
 .next
 .vite
+
+# Playwright
+test-results
+playwright-report

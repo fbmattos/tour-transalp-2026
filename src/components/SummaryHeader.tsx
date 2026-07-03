@@ -3,6 +3,7 @@ import type { Stage } from '../data/stages';
 import { useUnits } from '../context/UnitsContext';
 import { event } from '../data/event';
 import { team } from '../data/team';
+import { showAbout } from '../data/activeTrip';
 
 interface Props {
   stages: Stage[];
@@ -31,7 +32,7 @@ export const SummaryHeader: React.FC<Props> = ({ stages, isAboutOpen, onAboutCli
         <p className="text-xs text-white/40 mt-0.5">
           {team.name} · {event.name}: {event.location} · {event.dates}
         </p>
-        {!isAboutOpen && (
+        {showAbout && !isAboutOpen && (
           <button
             type="button"
             onClick={onAboutClick}

@@ -71,70 +71,80 @@ export const StageCard: React.FC<Props> = ({ stage, isSelected, onClick }) => {
           <DifficultyBadge badge={stage.badge} color={stage.badgeColor} small />
         </div>
 
-        {/* Stats */}
-        <div className="flex gap-3 mb-3 text-xs text-white/60">
-          <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-            {formatDistance(stage.distanceKm, stage.distanceMi)}
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-            {formatElevation(stage.elevationM, stage.elevationFt)}
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {stage.estimatedTime.split('–')[0].trim()}+
-          </span>
-        </div>
+        {stage.isRestDay ? (
+          /* Rest day — no stats/route */
+          <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-400/15 bg-emerald-400/5 px-3 py-2 text-xs text-white/60">
+            <span>🌴</span>
+            <span>Rest &amp; recover — no ride today</span>
+          </div>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="flex gap-3 mb-3 text-xs text-white/60">
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                {formatDistance(stage.distanceKm, stage.distanceMi)}
+              </span>
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+                {formatElevation(stage.elevationM, stage.elevationFt)}
+              </span>
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {stage.estimatedTime.split('–')[0].trim()}+
+              </span>
+            </div>
 
-        {/* Difficulty bar */}
-        <DifficultyBar score={stage.difficultyScore} />
+            {/* Difficulty bar */}
+            <DifficultyBar score={stage.difficultyScore} />
 
-        {/* Elevation trace */}
-        <div
-          className={`mt-3 h-9 overflow-hidden rounded-lg border transition-colors ${
-            isSelected
-              ? 'border-emerald-400/20 bg-emerald-400/5'
-              : 'border-white/5 bg-white/[0.03] group-hover:border-white/10'
-          }`}
-        >
-          <svg
-            viewBox="0 0 220 38"
-            preserveAspectRatio="none"
-            className="h-full w-full"
-            aria-hidden="true"
-          >
-            <path
-              d={`${elevationPath} L 220 38 L 0 38 Z`}
-              className="fill-emerald-400/10"
-            />
-            <path
-              d={elevationPath}
-              pathLength={1}
-              className={`stage-card-elevation-line ${
-                isSelected ? 'stage-card-elevation-line-selected' : ''
-              }`}
-            />
-            <circle
-              r="2.2"
-              className={`stage-card-elevation-dot ${
-                isSelected ? 'stage-card-elevation-dot-selected' : ''
+            {/* Elevation trace */}
+            <div
+              className={`mt-3 h-9 overflow-hidden rounded-lg border transition-colors ${
+                isSelected
+                  ? 'border-emerald-400/20 bg-emerald-400/5'
+                  : 'border-white/5 bg-white/[0.03] group-hover:border-white/10'
               }`}
             >
-              <animateMotion
-                dur={isSelected ? '5s' : '7s'}
-                repeatCount="indefinite"
-                path={elevationPath}
-              />
-            </circle>
-          </svg>
-        </div>
+              <svg
+                viewBox="0 0 220 38"
+                preserveAspectRatio="none"
+                className="h-full w-full"
+                aria-hidden="true"
+              >
+                <path
+                  d={`${elevationPath} L 220 38 L 0 38 Z`}
+                  className="fill-emerald-400/10"
+                />
+                <path
+                  d={elevationPath}
+                  pathLength={1}
+                  className={`stage-card-elevation-line ${
+                    isSelected ? 'stage-card-elevation-line-selected' : ''
+                  }`}
+                />
+                <circle
+                  r="2.2"
+                  className={`stage-card-elevation-dot ${
+                    isSelected ? 'stage-card-elevation-dot-selected' : ''
+                  }`}
+                >
+                  <animateMotion
+                    dur={isSelected ? '5s' : '7s'}
+                    repeatCount="indefinite"
+                    path={elevationPath}
+                  />
+                </circle>
+              </svg>
+            </div>
+          </>
+        )}
       </div>
     </button>
   );

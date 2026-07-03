@@ -14,10 +14,14 @@ const getDifficultyTone = (score: number) => {
   return 'from-emerald-500 to-teal-300 shadow-emerald-500/20';
 };
 
+const stageDensity = (stage: Stage) =>
+  stage.distanceMi > 0 ? stage.elevationFt / stage.distanceMi : 0;
+
 export const ClimbDifficultySkyline = ({ stages, selectedId, onSelect }: Props) => {
   const { formatElevation, isImperial } = useUnits();
-  const maxElevation = Math.max(...stages.map((stage) => stage.elevationFt));
-  const maxDensity = Math.max(...stages.map((stage) => stage.elevationFt / stage.distanceMi));
+  const ridingStages = stages.filter((stage) => stage.distanceMi > 0);
+  const maxElevation = Math.max(1, ...ridingStages.map((stage) => stage.elevationFt));
+  const maxDensity = Math.max(1, ...ridingStages.map(stageDensity));
 
   return (
     <div className="border-b border-white/10 bg-white/[0.03] px-3 py-3">
@@ -29,7 +33,7 @@ export const ClimbDifficultySkyline = ({ stages, selectedId, onSelect }: Props) 
         {stages.map((stage) => {
           const isSelected = stage.id === selectedId;
           const elevationPct = stage.elevationFt / maxElevation;
-          const densityPct = (stage.elevationFt / stage.distanceMi) / maxDensity;
+          const densityPct = stageDensity(stage) / maxDensity;
           const height = 28 + elevationPct * 48;
           const tone = getDifficultyTone(stage.difficultyScore);
 
@@ -38,11 +42,15 @@ export const ClimbDifficultySkyline = ({ stages, selectedId, onSelect }: Props) 
               key={stage.id}
               onClick={() => onSelect(stage.id)}
               className="group flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 transition-colors hover:bg-white/5"
-              title={`Stage ${stage.stageNumber}: ${formatElevation(stage.elevationM, stage.elevationFt)}, ${
-                isImperial
-                  ? `${Math.round(stage.elevationFt / stage.distanceMi)} ft/mi`
-                  : `${Math.round(stage.elevationM / stage.distanceKm)} m/km`
-              }`}
+              title={
+                stage.distanceMi > 0
+                  ? `Stage ${stage.stageNumber}: ${formatElevation(stage.elevationM, stage.elevationFt)}, ${
+                      isImperial
+                        ? `${Math.round(stage.elevationFt / stage.distanceMi)} ft/mi`
+                        : `${Math.round(stage.elevationM / stage.distanceKm)} m/km`
+                    }`
+                  : `Stage ${stage.stageNumber}: Rest day`
+              }
             >
               <div className="relative flex h-16 w-full items-end justify-center">
                 <div

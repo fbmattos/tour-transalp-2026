@@ -6,6 +6,7 @@ import { StageVideos } from "./StageVideos";
 import type { GpxStatus, StageWithGpx } from "../hooks/useGpxStages";
 import { useUnits } from "../context/UnitsContext";
 import { raceTotals, stages } from "../data/stages";
+import { event } from "../data/event";
 
 interface Props {
   stage: StageWithGpx;
@@ -84,11 +85,16 @@ const climbContext = (stage: StageWithGpx) => {
     .join("\n");
 };
 
-const GPX_REPO_BASE_URL =
-  "https://raw.githubusercontent.com/fbmattos/tour-transalp-2026/main/public";
-
-const buildGpxUrl = (gpxFile: string) =>
-  `${GPX_REPO_BASE_URL}${encodeURI(gpxFile)}`;
+// Absolute URL to the GPX on whatever origin this deployment is served from,
+// so the clipboard/AI-planning context links to a real, reachable file.
+const buildGpxUrl = (gpxFile: string) => {
+  if (!gpxFile) return "";
+  const origin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "";
+  return `${origin}${encodeURI(gpxFile)}`;
+};
 
 const buildKmlFile = (gpxFile: string) =>
   gpxFile.replace("/gpx/", "/kml/").replace(/\.gpx$/i, ".kml");
@@ -101,7 +107,7 @@ const buildStageClipboardContext = (stage: StageWithGpx) => {
     ? `GPX-measured route: ${stage.gpxStats.totalDistanceKm.toLocaleString()} km, ${stage.gpxStats.totalElevationGainM.toLocaleString()} m gain, ${stage.gpxStats.pointCount.toLocaleString()} track points.`
     : "GPX-measured route statistics are not available yet.";
 
-  return `Tour Transalp 2026 ride-planning context\n\nThis is Stage ${stage.stageNumber} of the seven-day Tour Transalp 2026 stage tour, a point-to-point Alpine road cycling event. The route for this stage goes from ${stage.start} to ${stage.finish}. ${difficultyContext(stage)}\n\nStage overview: ${stage.summary}\n\nOfficial stage stats: ${stage.distanceKm.toLocaleString()} km / ${stage.distanceMi.toLocaleString()} mi with ${stage.elevationM.toLocaleString()} m / ${stage.elevationFt.toLocaleString()} ft of climbing. Estimated riding time: ${stage.estimatedTime}. Difficulty score: ${stage.difficultyScore}/10 (${stage.badge}).\n\n${gpxStats}\n\nKey climbs and terrain:\n${climbContext(stage)}\n\nMain risk: ${stage.mainRisk}\n\nPacing advice: ${stage.pacingAdvice}\n\nPlease use this context and the linked GPX file to create a practical ride plan with pacing, fueling, hydration, climb-by-climb strategy, descent cautions, and contingency notes for weather/fatigue.\n\nGPX file link: ${buildGpxUrl(stage.gpxFile)}`;
+  return `${event.name} ride-planning context\n\nThis is Stage ${stage.stageNumber} of the ${event.totalStages}-day ${event.name} (${event.location}), a road cycling trip. The route for this stage goes from ${stage.start} to ${stage.finish}. ${difficultyContext(stage)}\n\nStage overview: ${stage.summary}\n\nOfficial stage stats: ${stage.distanceKm.toLocaleString()} km / ${stage.distanceMi.toLocaleString()} mi with ${stage.elevationM.toLocaleString()} m / ${stage.elevationFt.toLocaleString()} ft of climbing. Estimated riding time: ${stage.estimatedTime}. Difficulty score: ${stage.difficultyScore}/10 (${stage.badge}).\n\n${gpxStats}\n\nKey climbs and terrain:\n${climbContext(stage)}\n\nMain risk: ${stage.mainRisk}\n\nPacing advice: ${stage.pacingAdvice}\n\nPlease use this context and the linked GPX file to create a practical ride plan with pacing, fueling, hydration, climb-by-climb strategy, descent cautions, and contingency notes for weather/fatigue.\n\nGPX file link: ${buildGpxUrl(stage.gpxFile)}`;
 };
 
 const DataConfidence: React.FC<{ status?: GpxStatus }> = ({ status }) => (
@@ -196,7 +202,7 @@ export const StageContextCopyButton: React.FC<Props> = ({ stage }) => {
       <span className="mt-1 block text-xs text-white/50">
         {copyState === "error"
           ? "Clipboard access failed. Check browser permissions and try again."
-          : "Includes route summary, difficulty context, climb notes, pacing risks, and a GitHub link to the GPX file."}
+          : "Includes route summary, difficulty context, climb notes, pacing risks, and a link to the GPX file."}
       </span>
     </button>
   );
@@ -257,31 +263,54 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
               <DifficultyBadge badge={stage.badge} color={stage.badgeColor} />
               <DifficultyBar score={stage.difficultyScore} />
             </div>
-            <StageContextCopyButton stage={stage} />
-            <StageDownloadButtons stage={stage} />
+            {!stage.isRestDay && (
+              <>
+                <StageContextCopyButton stage={stage} />
+                <StageDownloadButtons stage={stage} />
+              </>
+            )}
           </div>
 
           {/* Key stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <InfoCard
-              label="Distance"
-              value={formatDistance(stage.distanceKm, stage.distanceMi)}
-              icon="↔"
-            />
-            <InfoCard
-              label="Climbing"
-              value={formatElevation(stage.elevationM, stage.elevationFt)}
-              icon="↑"
-            />
-            <InfoCard
-              label="Est. Time"
-              value={stage.estimatedTime.split("–")[0].trim()}
-              sub={`to ${stage.estimatedTime.split("–")[1]?.trim()}`}
-              icon="⏱"
-            />
-          </div>
+          {stage.isRestDay ? (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-center">
+              <p className="text-3xl leading-none">🌴</p>
+              <p className="mt-2 text-sm font-bold uppercase tracking-widest text-emerald-200">
+                Rest Day
+              </p>
+              <p className="mt-1 text-xs text-white/55 leading-relaxed">
+                No route today — recover, refuel, and stay off the climbs. Based in{" "}
+                {stage.start.split(",")[0]}.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                <InfoCard
+                  label="Distance"
+                  value={formatDistance(stage.distanceKm, stage.distanceMi)}
+                  icon="↔"
+                />
+                <InfoCard
+                  label="Climbing"
+                  value={formatElevation(stage.elevationM, stage.elevationFt)}
+                  icon="↑"
+                />
+                <InfoCard
+                  label="Est. Time"
+                  value={stage.estimatedTime.split("–")[0].trim()}
+                  sub={
+                    stage.estimatedTime.includes("–")
+                      ? `to ${stage.estimatedTime.split("–")[1]?.trim()}`
+                      : undefined
+                  }
+                  icon="⏱"
+                />
+              </div>
 
-          <DataConfidence status={stage.gpxStatus} />
+              <DataConfidence status={stage.gpxStatus} />
+            </>
+          )}
 
           {stage.gpxStats && (
             <div className="grid grid-cols-3 gap-2">
@@ -357,9 +386,11 @@ export const StageDetail: React.FC<Props> = ({ stage }) => {
           )}
 
           {/* Elevation profile */}
-          <div className="bg-white/5 rounded-xl border border-white/10 p-4">
-            <ElevationProfile stage={stage} />
-          </div>
+          {!stage.isRestDay && (
+            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+              <ElevationProfile stage={stage} />
+            </div>
+          )}
 
           {/* Summary */}
           <div>

@@ -154,8 +154,10 @@ export const RouteMap: React.FC<Props> = ({
     ? stages
     : stages.filter((s) => s.id === selectedId);
 
-  const centerLat = 46.3;
-  const centerLng = 11.8;
+  const lastStageNumber = Math.max(...stages.map((s) => s.stageNumber));
+
+  const centerLat = 39.7;
+  const centerLng = 2.9;
 
   return (
     <MapContainer
@@ -211,12 +213,12 @@ export const RouteMap: React.FC<Props> = ({
             </Marker>
 
             {/* Finish marker — only on last stage or selected */}
-            {(stage.stageNumber === 7 || isSelected) && (
+            {(stage.stageNumber === lastStageNumber || isSelected) && (
               <Marker position={stage.finishCoord} icon={makeFinishIcon()}>
                 <Popup>
                   <div className="text-sm">
                     <p className="font-bold text-purple-700">
-                      {stage.stageNumber === 7 ? '🏁 Race Finish' : `Stage ${stage.stageNumber} Finish`}
+                      {stage.stageNumber === lastStageNumber ? '🏁 Final Finish' : `Stage ${stage.stageNumber} Finish`}
                     </p>
                     <p>{stage.finish}</p>
                   </div>

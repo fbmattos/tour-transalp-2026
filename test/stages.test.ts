@@ -22,16 +22,24 @@ describe('stage data integrity', () => {
       expect(stage.id.trim()).not.toBe('');
       expect(stage.start.trim()).not.toBe('');
       expect(stage.finish.trim()).not.toBe('');
-      expect(stage.gpxFile.trim()).toMatch(/^\/gpx\/.+\.gpx$/);
 
       expectPositiveNumber(stage.stageNumber, `${stage.id}.stageNumber`);
-      expectPositiveNumber(stage.distanceKm, `${stage.id}.distanceKm`);
-      expectPositiveNumber(stage.distanceMi, `${stage.id}.distanceMi`);
-      expectPositiveNumber(stage.elevationM, `${stage.id}.elevationM`);
-      expectPositiveNumber(stage.elevationFt, `${stage.id}.elevationFt`);
-      expectPositiveNumber(stage.difficultyScore, `${stage.id}.difficultyScore`);
 
-      expect(stage.routeCoordinates.length, `${stage.id}.routeCoordinates`).toBeGreaterThanOrEqual(2);
+      // Rest days carry no route and zero distance; riding stages must be fully populated.
+      if (stage.isRestDay) {
+        expect(stage.gpxFile).toBe('');
+        expect(stage.distanceKm).toBe(0);
+        expect(stage.distanceMi).toBe(0);
+      } else {
+        expect(stage.gpxFile.trim()).toMatch(/^\/gpx\/.+\.gpx$/);
+        expectPositiveNumber(stage.distanceKm, `${stage.id}.distanceKm`);
+        expectPositiveNumber(stage.distanceMi, `${stage.id}.distanceMi`);
+        expectPositiveNumber(stage.elevationM, `${stage.id}.elevationM`);
+        expectPositiveNumber(stage.elevationFt, `${stage.id}.elevationFt`);
+        expectPositiveNumber(stage.difficultyScore, `${stage.id}.difficultyScore`);
+        expect(stage.routeCoordinates.length, `${stage.id}.routeCoordinates`).toBeGreaterThanOrEqual(2);
+      }
+
       expect(stage.elevationProfile.length, `${stage.id}.elevationProfile`).toBeGreaterThanOrEqual(2);
       expect(stage.startCoord).toHaveLength(2);
       expect(stage.finishCoord).toHaveLength(2);
