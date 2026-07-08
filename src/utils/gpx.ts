@@ -30,6 +30,7 @@ export interface GpxGradientSegment {
 
 const EARTH_RADIUS_KM = 6371;
 const KM_PER_MILE = 1.609344;
+const ELEVATION_GAIN_THRESHOLD_M = 2;
 const GRADIENT_WINDOWS_KM = [0.5 * KM_PER_MILE, 1 * KM_PER_MILE, 2 * KM_PER_MILE];
 
 const toRadians = (degrees: number) => degrees * (Math.PI / 180);
@@ -125,7 +126,7 @@ export const parseGpxTrack = (gpxText: string): ParsedGpxTrack => {
   let minElevationM = Number.POSITIVE_INFINITY;
   let maxElevationM = Number.NEGATIVE_INFINITY;
   let previousCoordinate: [number, number] | null = null;
-  let previousElevation: number | null = null;
+  let lastAnchorElevation: number | null = null;
 
   for (const point of trackPoints) {
     const lat = Number(point.getAttribute('lat'));
@@ -142,8 +143,16 @@ export const parseGpxTrack = (gpxText: string): ParsedGpxTrack => {
       totalDistanceKm += distanceKm(previousCoordinate, coordinate);
     }
 
-    if (previousElevation !== null && elevation > previousElevation) {
-      totalElevationGainM += elevation - previousElevation;
+    if (lastAnchorElevation === null) {
+      lastAnchorElevation = elevation;
+    } else {
+      const elevationDiff = elevation - lastAnchorElevation;
+      if (elevationDiff >= ELEVATION_GAIN_THRESHOLD_M) {
+        totalElevationGainM += elevationDiff;
+        lastAnchorElevation = elevation;
+      } else if (elevationDiff <= -ELEVATION_GAIN_THRESHOLD_M) {
+        lastAnchorElevation = elevation;
+      }
     }
 
     minElevationM = Math.min(minElevationM, elevation);
@@ -159,7 +168,6 @@ export const parseGpxTrack = (gpxText: string): ParsedGpxTrack => {
     });
 
     previousCoordinate = coordinate;
-    previousElevation = elevation;
   }
 
   if (routeCoordinates.length === 0) {
